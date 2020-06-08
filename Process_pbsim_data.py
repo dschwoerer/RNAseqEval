@@ -7,7 +7,7 @@ from datetime import datetime
 
 # To enable importing from samscripts submodulew
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(SCRIPT_PATH, 'samscripts/src'))
+sys.path.append(os.path.join(SCRIPT_PATH, "samscripts/src"))
 import utility_sam
 from . import Annotation_formats
 from . import RNAseqEval
@@ -45,20 +45,27 @@ P_CHECK_STRAND = False
 simFolderDict = benchmark_params.simFolderDict
 
 
-paramdefs = {'--version' : 0,
-             '-v' : 0,
-             '--split-qnames' : 1,
-             '-sqn' : 0,
-             '--save_query_names' : 0,
-             '--debug' : 0,
-             '--print_mapping' : 1,
-             '--alowed_inaccurycy' : 1,
-             '-ai' : 1,
-             '--min_overlap' : 1,
-             '-mo' : 1}
+paramdefs = {
+    "--version": 0,
+    "-v": 0,
+    "--split-qnames": 1,
+    "-sqn": 0,
+    "--save_query_names": 0,
+    "--debug": 0,
+    "--print_mapping": 1,
+    "--alowed_inaccurycy": 1,
+    "-ai": 1,
+    "--min_overlap": 1,
+    "-mo": 1,
+}
 
 # Obsolete
-def interval_equals(interval1, interval2, allowed_inacc = Annotation_formats.DEFAULT_ALLOWED_INACCURACY, min_overlap = Annotation_formats.DEFAULT_MINIMUM_OVERLAP):
+def interval_equals(
+    interval1,
+    interval2,
+    allowed_inacc=Annotation_formats.DEFAULT_ALLOWED_INACCURACY,
+    min_overlap=Annotation_formats.DEFAULT_MINIMUM_OVERLAP,
+):
     if interval1[0] < interval2[0] - allowed_inacc:
         return False
     if interval1[0] > interval2[0] + allowed_inacc:
@@ -70,10 +77,18 @@ def interval_equals(interval1, interval2, allowed_inacc = Annotation_formats.DEF
 
     return True
 
-# Obsolete
-def interval_overlaps(interval1, interval2, allowed_inacc = Annotation_formats.DEFAULT_ALLOWED_INACCURACY, min_overlap = Annotation_formats.DEFAULT_MINIMUM_OVERLAP):
 
-    if (interval1[1] <= interval2[0] + min_overlap) or (interval1[0] >= interval2[1] - min_overlap):
+# Obsolete
+def interval_overlaps(
+    interval1,
+    interval2,
+    allowed_inacc=Annotation_formats.DEFAULT_ALLOWED_INACCURACY,
+    min_overlap=Annotation_formats.DEFAULT_MINIMUM_OVERLAP,
+):
+
+    if (interval1[1] <= interval2[0] + min_overlap) or (
+        interval1[0] >= interval2[1] - min_overlap
+    ):
         return False
     else:
         return True
@@ -82,21 +97,21 @@ def interval_overlaps(interval1, interval2, allowed_inacc = Annotation_formats.D
 def processData(datafolder, resultfile, annotationfile, paramdict):
 
     split_qnames = False
-    filename = ''
-    if '--split-qnames' in paramdict:
+    filename = ""
+    if "--split-qnames" in paramdict:
         split_qnames = True
-        filename = paramdict['--split-qnames'][0]
+        filename = paramdict["--split-qnames"][0]
 
-    filename_correct = filename + '_correct.names'
-    filename_hitall = filename + '_hitall.names'
-    filename_hitone = filename + '_hitone.names'
-    filename_bad = filename + '_incorrect.names'
-    filename_unmapped = filename + '_unmapped.names'
+    filename_correct = filename + "_correct.names"
+    filename_hitall = filename + "_hitall.names"
+    filename_hitone = filename + "_hitone.names"
+    filename_bad = filename + "_incorrect.names"
+    filename_unmapped = filename + "_unmapped.names"
 
     printMap = False
-    filename_mapping = ''
-    if '--print_mapping' in paramdict:
-        filename_mapping = paramdict['--print_mapping'][0]
+    filename_mapping = ""
+    if "--print_mapping" in paramdict:
+        filename_mapping = paramdict["--print_mapping"][0]
         printMap = True
 
     file_correct = None
@@ -108,19 +123,25 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
 
     # If splittng qnames into files, have to open files first
     if split_qnames:
-        file_correct = open(os.path.join(folder, filename_correct), 'w+')
-        file_hitall = open(os.path.join(folder, filename_hitall), 'w+')
-        file_hitone = open(os.path.join(folder, filename_hitone), 'w+')
-        file_bad = open(os.path.join(folder, filename_bad), 'w+')
+        file_correct = open(os.path.join(folder, filename_correct), "w+")
+        file_hitall = open(os.path.join(folder, filename_hitall), "w+")
+        file_hitone = open(os.path.join(folder, filename_hitone), "w+")
+        file_bad = open(os.path.join(folder, filename_bad), "w+")
 
     # Loading results SAM file
-    report = EvalReport(ReportType.FASTA_REPORT)    # not really needed, used for unmapped query names
+    report = EvalReport(
+        ReportType.FASTA_REPORT
+    )  # not really needed, used for unmapped query names
     # Have to preserve the paramdict
     # paramdict = {}
 
-    sys.stderr.write('\n(%s) Loading and processing SAM file with mappings ... ' % datetime.now().time().isoformat())
-    all_sam_lines = RNAseqEval.load_and_process_SAM(resultfile, paramdict, report, BBMapFormat = True)
-
+    sys.stderr.write(
+        "\n(%s) Loading and processing SAM file with mappings ... "
+        % datetime.now().time().isoformat()
+    )
+    all_sam_lines = RNAseqEval.load_and_process_SAM(
+        resultfile, paramdict, report, BBMapFormat=True
+    )
 
     # Reading annotation file
     annotations = Annotation_formats.Load_Annotation_From_File(annotationfile)
@@ -129,18 +150,20 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
 
     mapfile = None
     if printMap:
-        mapfile = open(filename_mapping, 'w+')
+        mapfile = open(filename_mapping, "w+")
 
     # Hashing annotations according to name
     annotation_dict = {}
     for annotation in annotations:
         if annotation.genename in annotation_dict:
-            sys.stderr.write('\nWARNING: anotation with name %s already in the dictionary!' % annotation.genename)
+            sys.stderr.write(
+                "\nWARNING: anotation with name %s already in the dictionary!"
+                % annotation.genename
+            )
         else:
             annotation_dict[annotation.genename] = annotation
         if len(annotation.items) > 1:
             s_num_multiexon_genes += 1
-
 
     # Statistical information for evaluating the qualitiy of mapping
     s_gene_hits = 0
@@ -157,7 +180,7 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
     s_num_rv_strand = 0
 
     s_num_split_alignment = 0
-    s_num_oversplit_alignment = 0       # Alignments that have more parts than exons
+    s_num_oversplit_alignment = 0  # Alignments that have more parts than exons
 
     s_num_good_alignments = 0
 
@@ -185,20 +208,24 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
 
     s_num_potential_bad_strand = 0
 
-    allowed_inacc = Annotation_formats.DEFAULT_ALLOWED_INACCURACY       # Allowing some shift in positions
-    min_overlap = Annotation_formats.DEFAULT_MINIMUM_OVERLAP       		# Minimum overlap that is considered
+    allowed_inacc = (
+        Annotation_formats.DEFAULT_ALLOWED_INACCURACY
+    )  # Allowing some shift in positions
+    min_overlap = (
+        Annotation_formats.DEFAULT_MINIMUM_OVERLAP
+    )  # Minimum overlap that is considered
 
     # Setting allowed_inaccuracy from parameters
-    if '--allowed_inacc' in paramdict:
-        allowed_inacc = int(paramdict['--allowed_inacc'][0])
-    elif '-ai' in paramdict:
-        allowed_inacc = int(paramdict['-ai'][0])
+    if "--allowed_inacc" in paramdict:
+        allowed_inacc = int(paramdict["--allowed_inacc"][0])
+    elif "-ai" in paramdict:
+        allowed_inacc = int(paramdict["-ai"][0])
 
     # Setting minimum overlap from parameters
-    if '--allowed_inacc' in paramdict:
-        min_overlap = int(paramdict['--allowed_inacc'][0])
-    elif '-mo' in paramdict:
-        min_overlap = int(paramdict['-mo'][0])
+    if "--allowed_inacc" in paramdict:
+        min_overlap = int(paramdict["--allowed_inacc"][0])
+    elif "-mo" in paramdict:
+        min_overlap = int(paramdict["-mo"][0])
 
     # All samlines in a list should have the same query name
     for samline_list in all_sam_lines:
@@ -212,46 +239,49 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
         # Checking the SAM file if all samlines in a list have the same qname
         for samline in samline_list[1:]:
             if samline.qname != qname:
-                sys.stderr.write('\nWARNING: two samlines in the same list with different query names (%s/%s)' % (qname, samline.qname))
+                sys.stderr.write(
+                    "\nWARNING: two samlines in the same list with different query names (%s/%s)"
+                    % (qname, samline.qname)
+                )
 
         # Look for the first underscore in query name
         # Everything before that is the simulation folder name
         # Everything after that is simulated query name
-        pos = qname.find('_')
+        pos = qname.find("_")
         if pos < 0:
-            raise Exception('Invalid query name in results file (%s)!' % qname)
+            raise Exception("Invalid query name in results file (%s)!" % qname)
 
         simFolderKey = qname[:pos]
         if simFolderKey not in simFolderDict:
             # import pdb
             # pdb.set_trace()
-            raise Exception('Bad simulation folder short name (%s)!' % simFolderKey)
+            raise Exception("Bad simulation folder short name (%s)!" % simFolderKey)
         simFolder = simFolderDict[simFolderKey]
-        simQName = qname[pos+1:]
+        simQName = qname[pos + 1 :]
 
         # Due to error in data preparation, have to make some extra processing
-        if simQName[:6] == 'SimG2_':
+        if simQName[:6] == "SimG2_":
             simQName = simQName[6:]
 
+        #        if simFolderKey == 'SimG1':
+        #            simFileSuffix = 'g1'
+        #        elif simFolderKey == 'SimG2':
+        #            simFileSuffix = 'g2'
+        #        elif simFolderKey == 'SimG3':
+        #            simFileSuffix = 'g3'
+        #        else:
+        #            simFileSuffix = 'sd'
 
-#        if simFolderKey == 'SimG1':
-#            simFileSuffix = 'g1'
-#        elif simFolderKey == 'SimG2':
-#            simFileSuffix = 'g2'
-#        elif simFolderKey == 'SimG3':
-#            simFileSuffix = 'g3'
-#        else:
-#            simFileSuffix = 'sd'
+        simFileSuffix = "sd"
 
-        simFileSuffix = 'sd'
-
-
-        pos = simQName.find('_')
-        pos2 = simQName.find('_part')
+        pos = simQName.find("_")
+        pos2 = simQName.find("_part")
         if pos < 0:
-            raise Exception('Invalid simulated query name in results file (%s)!' % simQName)
+            raise Exception(
+                "Invalid simulated query name in results file (%s)!" % simQName
+            )
 
-        simQLetter = simQName[0]       # Should always be S
+        simQLetter = simQName[0]  # Should always be S
 
         # BBMap separates a query into smaller parts he can manage
         # Extends query with '_part_#', which has to be ignored
@@ -259,11 +289,11 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
             simQName = simQName[:pos2]
 
         simRefNumber = int(simQName[1:pos])
-        simQNumber = int(simQName[pos+1:])
-        simFileName = simFileSuffix + '_%04d' % simRefNumber
-        simRefFileName = simFileName + '.ref'
-        simSeqFileName = simFileName + '.fastq'
-        simMafFileName = simFileName + '.maf'
+        simQNumber = int(simQName[pos + 1 :])
+        simFileName = simFileSuffix + "_%04d" % simRefNumber
+        simRefFileName = simFileName + ".ref"
+        simSeqFileName = simFileName + ".fastq"
+        simMafFileName = simFileName + ".maf"
 
         simFilePath = os.path.join(datafolder, simFolder)
         simRefFilePath = os.path.join(simFilePath, simRefFileName)
@@ -273,20 +303,26 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
         if not os.path.exists(simRefFilePath):
             # import pdb
             # pdb.set_trace()
-            raise Exception('Reference file for simulated read %s does not exist!' % qname)
+            raise Exception(
+                "Reference file for simulated read %s does not exist!" % qname
+            )
         if not os.path.exists(simSeqFilePath):
             # import pdb
             # pdb.set_trace()
-            raise Exception('Sequence file for simulated read %s does not exist!' % qname)
+            raise Exception(
+                "Sequence file for simulated read %s does not exist!" % qname
+            )
         if not os.path.exists(simMafFilePath):
             # import pdb
             # pdb.set_trace()
-            raise Exception('Sequence alignment (MAF) for simulated read %s does not exist!' % qname)
+            raise Exception(
+                "Sequence alignment (MAF) for simulated read %s does not exist!" % qname
+            )
 
         # Reading reference file
         [headers, seqs, quals] = read_fastq(simRefFilePath)
         simGeneName = headers[0]
-        annotation = annotation_dict[simGeneName]       # Getting the correct annotation
+        annotation = annotation_dict[simGeneName]  # Getting the correct annotation
 
         if len(samline_list) > len(annotation.items):
             # sys.stderr.write('\nWARNING: A number of partial alignments exceeds the number of exons for query %s! (%d / %d)' % (qname, len(samline_list), len(annotation.items)))
@@ -295,16 +331,18 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
         # Reading MAF file to get original position and length of the simulated read
         # Query name should be a second item
         maf_startpos = maf_length = 0
-        maf_strand = '0'
+        maf_strand = "0"
         maf_reflen = 0
         i = 0
-        with open(simMafFilePath, 'rU') as maffile:
+        with open(simMafFilePath, "rU") as maffile:
             i += 1
             for line in maffile:
-                if line[0] == 's':
+                if line[0] == "s":
                     elements = line.split()
                     maf_qname = elements[1]
-                    if maf_qname == 'ref':              # Have to remember data for the last reference before the actual read
+                    if (
+                        maf_qname == "ref"
+                    ):  # Have to remember data for the last reference before the actual read
                         maf_startpos = int(elements[2])
                         maf_length = int(elements[3])
                         maf_strand = elements[4]
@@ -317,7 +355,10 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
         if maf_qname != simQName:
             # import pdb
             # pdb.set_trace()
-            raise Exception('ERROR: could not find query %s in maf file %s' % (qname, simMafFileName))
+            raise Exception(
+                "ERROR: could not find query %s in maf file %s"
+                % (qname, simMafFileName)
+            )
 
         # IMPORTANT: If the reads were generated from an annotation on reverse strand
         #            expected partial alignments must be reversed
@@ -343,7 +384,7 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
             start = annotation.items[i].start + maf_startpos
             end = annotation.items[i].end
             assert start <= end
-            
+
             # OLD: length = end-start+1
             # KK: End is already indicating position after the last base, so adding one when callculating length is not correct
             length = end - start
@@ -365,8 +406,8 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
         numparts = len(expected_partial_alignments)
         # For each part of expected partial alignments, these maps will count
         # how many real partial alignments overlap or equal it
-        parthitmap = {(i+1):0 for i in range(numparts)}
-        parteqmap = {(i+1):0 for i in range(numparts)}
+        parthitmap = {(i + 1): 0 for i in range(numparts)}
+        parteqmap = {(i + 1): 0 for i in range(numparts)}
 
         isSplitRead = False
         if len(expected_partial_alignments) > 1:
@@ -380,13 +421,15 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
         good_alignment = False
         has_miss_alignments = False
 
-        if RNAseqEval.getChromName(samline_list[0].rname) != RNAseqEval.getChromName(annotation.seqname):
+        if RNAseqEval.getChromName(samline_list[0].rname) != RNAseqEval.getChromName(
+            annotation.seqname
+        ):
             # import pdb
             # pdb.set_trace()
             s_num_badchrom_alignments += 1
         else:
             if len(samline_list) != len(expected_partial_alignments):
-            # sys.stderr.write('\nWARNING: suspicious number of alignments for query %s!' % qname)
+                # sys.stderr.write('\nWARNING: suspicious number of alignments for query %s!' % qname)
                 s_maf_suspicious_alignments += 1
             # import pdb
             # pdb.set_trace()
@@ -404,7 +447,10 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
                     expected_alignement = expected_partial_alignments[k]
                     maf_startpos = expected_alignement[0]
                     maf_endpos = expected_alignement[1]
-                    if abs(sl_startpos - maf_startpos) > allowed_inacc or abs(sl_endpos - maf_endpos) > allowed_inacc:
+                    if (
+                        abs(sl_startpos - maf_startpos) > allowed_inacc
+                        or abs(sl_endpos - maf_endpos) > allowed_inacc
+                    ):
                         good_alignment = False
                 else:
                     good_alignment = False
@@ -416,10 +462,20 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
                     maf_startpos = expected_alignement[0]
                     maf_endpos = expected_alignement[1]
 
-                    if interval_equals((sl_startpos, sl_endpos), (maf_startpos, maf_endpos), allowed_inacc, min_overlap):
-                        parteqmap[i+1] += 1
-                    if interval_overlaps((sl_startpos, sl_endpos), (maf_startpos, maf_endpos), allowed_inacc, min_overlap):
-                        parthitmap[i+1] += 1
+                    if interval_equals(
+                        (sl_startpos, sl_endpos),
+                        (maf_startpos, maf_endpos),
+                        allowed_inacc,
+                        min_overlap,
+                    ):
+                        parteqmap[i + 1] += 1
+                    if interval_overlaps(
+                        (sl_startpos, sl_endpos),
+                        (maf_startpos, maf_endpos),
+                        allowed_inacc,
+                        min_overlap,
+                    ):
+                        parthitmap[i + 1] += 1
 
             has_miss_alignments = False
             for expected_alignement in expected_partial_alignments:
@@ -430,7 +486,12 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
                     sl_startpos = samline.pos
                     reflength = samline.CalcReferenceLengthFromCigar()
                     sl_endpos = sl_startpos + reflength
-                    if interval_overlaps((sl_startpos, sl_endpos), (maf_startpos, maf_endpos), allowed_inacc, min_overlap):
+                    if interval_overlaps(
+                        (sl_startpos, sl_endpos),
+                        (maf_startpos, maf_endpos),
+                        allowed_inacc,
+                        min_overlap,
+                    ):
                         overlap = True
                 if not overlap:
                     has_miss_alignments = True
@@ -450,7 +511,7 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
 
                 # Writting qnames to files
                 if split_qnames:
-                    file_correct.write(samline_list[0].qname + '\n')
+                    file_correct.write(samline_list[0].qname + "\n")
 
                 if isSplitRead:
                     s_maf_good_split_alignments += 1
@@ -462,13 +523,14 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
                     s_maf_bad_split_alignments += 1
                 # TODO: check which alignments are bad and why
                 # If the choromosome is different its obviously a bad alignment
-                if RNAseqEval.getChromName(samline.rname) == RNAseqEval.getChromName(annotation.seqname):
+                if RNAseqEval.getChromName(samline.rname) == RNAseqEval.getChromName(
+                    annotation.seqname
+                ):
                     # import pdb
                     # pdb.set_trace()
                     pass
                 else:
                     s_num_badchrom_alignments += 1
-
 
             # Analyzing parthitmap and parteqmap
             oneHit = False
@@ -476,37 +538,48 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
             oneEq = False
             multiHit = False
             for i in range(numparts):
-                if parthitmap[i+1] > 0:
+                if parthitmap[i + 1] > 0:
                     oneHit = True
-                if parthitmap[i+1] == 0:
+                if parthitmap[i + 1] == 0:
                     allHits = False
-                if parthitmap[i+1] > 1:
+                if parthitmap[i + 1] > 1:
                     multiHit = True
-                if parteqmap[i+1] > 0:
+                if parteqmap[i + 1] > 0:
                     oneEq = True
 
         if printMap:
-            status = 'INCORRECT'
+            status = "INCORRECT"
             if good_alignment:
-                status = 'CORRECT'
+                status = "CORRECT"
             elif allHits:
-                status = 'HITALL'
+                status = "HITALL"
             elif oneHit:
-                status = 'HITONE'
-            mapfile.write('QNAME: %s, STATUS: %s\n\n' % (samline_list[0].qname, status))
-            mapfile.write('EXPECTED (%s, %s):\t' % (RNAseqEval.getChromName(annotation.seqname), annotation.strand))
+                status = "HITONE"
+            mapfile.write("QNAME: %s, STATUS: %s\n\n" % (samline_list[0].qname, status))
+            mapfile.write(
+                "EXPECTED (%s, %s):\t"
+                % (RNAseqEval.getChromName(annotation.seqname), annotation.strand)
+            )
             for epa in expected_partial_alignments:
-                mapfile.write('(%d, %d)\t' % (epa[0], epa[1]))
-            mapfile.write('\n')
+                mapfile.write("(%d, %d)\t" % (epa[0], epa[1]))
+            mapfile.write("\n")
             if samline_list[0].flag & 16 == 0:
                 readstrand = Annotation_formats.GFF_STRANDFW
             else:
                 readstrand = Annotation_formats.GFF_STRANDRV
-            mapfile.write('ACTUAL   (%s, %s):\t' % (RNAseqEval.getChromName(samline_list[0].rname), readstrand))
+            mapfile.write(
+                "ACTUAL   (%s, %s):\t"
+                % (RNAseqEval.getChromName(samline_list[0].rname), readstrand)
+            )
             for samline in samline_list:
-                mapfile.write('(%d, %d)\t' % (samline.pos, samline.pos + samline.CalcReferenceLengthFromCigar()))
-            mapfile.write('\n\n')
-
+                mapfile.write(
+                    "(%d, %d)\t"
+                    % (
+                        samline.pos,
+                        samline.pos + samline.CalcReferenceLengthFromCigar(),
+                    )
+                )
+            mapfile.write("\n\n")
 
         if oneHit:
             s_maf_hit_one_part += 1
@@ -515,11 +588,12 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
 
             # Writting qnames to files
             if split_qnames:
-                file_hitone.write(samline_list[0].qname + '\n')
+                file_hitone.write(samline_list[0].qname + "\n")
 
             if not allHits:
-                if '--debug' in paramdict:
+                if "--debug" in paramdict:
                     import pdb
+
                     pdb.set_trace()
 
             # Misses are calculated only for alignments that have at least one hit
@@ -529,7 +603,7 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
         else:
             # Writting qnames to files
             if split_qnames:
-                file_bad.write(samline_list[0].qname + '\n')
+                file_bad.write(samline_list[0].qname + "\n")
 
             # if '--debug' in paramdict:
             #     import pdb
@@ -542,11 +616,12 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
 
             # Writting qnames to files
             if split_qnames:
-                file_hitall.write(samline_list[0].qname + '\n')
+                file_hitall.write(samline_list[0].qname + "\n")
 
         # Sanity check
-        if '--debug' in paramdict and good_alignment and not allHits:
+        if "--debug" in paramdict and good_alignment and not allHits:
             import pdb
+
             pdb.set_trace()
             pass
 
@@ -577,14 +652,22 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
 
             chromname = RNAseqEval.getChromName(samline.rname)
 
-            if chromname == RNAseqEval.getChromName(annotation.seqname) and readstrand != annotation.strand and annotation.overlapsGene(startpos, endpos):
+            if (
+                chromname == RNAseqEval.getChromName(annotation.seqname)
+                and readstrand != annotation.strand
+                and annotation.overlapsGene(startpos, endpos)
+            ):
                 s_num_potential_bad_strand += 1
 
-            if chromname == RNAseqEval.getChromName(annotation.seqname) and annotation.overlapsGene(startpos, endpos) and (not P_CHECK_STRAND or readstrand == annotation.strand):
+            if (
+                chromname == RNAseqEval.getChromName(annotation.seqname)
+                and annotation.overlapsGene(startpos, endpos)
+                and (not P_CHECK_STRAND or readstrand == annotation.strand)
+            ):
                 whole_alignment_hit = True
                 s_partial_alignment_hits += 1
             else:
-                s_partial_alignment_misses +=1
+                s_partial_alignment_misses += 1
 
             # Checking how well partial alignments match exons
             startsItem = False
@@ -605,7 +688,9 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
         s_num_end_hits += num_end_hits
 
         # I'm allowing one start and one end not to match starts and ends of exons
-        if (num_hits == num_partial_alignements) and (num_start_hits + num_end_hits >= 2*num_partial_alignements - 2) :
+        if (num_hits == num_partial_alignements) and (
+            num_start_hits + num_end_hits >= 2 * num_partial_alignements - 2
+        ):
             s_num_good_alignments += 1
         # else:
         #     if num_hits > 0:
@@ -622,40 +707,55 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
 
     # Writting unmapped query names to a file, if so specified
     if split_qnames:
-        with open(filename_unmapped, 'w+') as file_unmapped:
+        with open(filename_unmapped, "w+") as file_unmapped:
             file_unmapped.write(report.get_unmapped_names())
             file_unmapped.close()
 
     # Printing out results : NEW
     # Variables names matching RNA benchmark paper
-    sys.stdout.write('\n\nAnalysis results:')
-    sys.stdout.write('\nOriginal Samlines: %d' % report.num_alignments)
-    sys.stdout.write('\nUsable whole alignments (with valid CIGAR string): %d' % len(all_sam_lines))
-    sys.stdout.write('\nAnnotations: %d' % len(annotation_dict))
-    sys.stdout.write('\nMultiexon genes: %d' % s_num_multiexon_genes)
+    sys.stdout.write("\n\nAnalysis results:")
+    sys.stdout.write("\nOriginal Samlines: %d" % report.num_alignments)
+    sys.stdout.write(
+        "\nUsable whole alignments (with valid CIGAR string): %d" % len(all_sam_lines)
+    )
+    sys.stdout.write("\nAnnotations: %d" % len(annotation_dict))
+    sys.stdout.write("\nMultiexon genes: %d" % s_num_multiexon_genes)
 
-    sys.stdout.write('\nNumber of exon start hits: %d' % s_num_start_hits)
-    sys.stdout.write('\nNumber of exon end hits: %d' % s_num_end_hits)
-    sys.stdout.write('\nNumber of exon start and end hits: %d' % s_num_start_end_hits)
-    sys.stdout.write('\nNumber of good whole alignments: %d' % s_num_good_alignments)
-    sys.stdout.write('\nNumber of alignments mapped to an incorrect chromosome: %d' % s_num_badchrom_alignments)
+    sys.stdout.write("\nNumber of exon start hits: %d" % s_num_start_hits)
+    sys.stdout.write("\nNumber of exon end hits: %d" % s_num_end_hits)
+    sys.stdout.write("\nNumber of exon start and end hits: %d" % s_num_start_end_hits)
+    sys.stdout.write("\nNumber of good whole alignments: %d" % s_num_good_alignments)
+    sys.stdout.write(
+        "\nNumber of alignments mapped to an incorrect chromosome: %d"
+        % s_num_badchrom_alignments
+    )
 
-    sys.stdout.write('\nMAF: Correct alignment: %d' % s_maf_good_alignments)
-    sys.stdout.write('\nMAF: Hit all parts: %d' % s_maf_hit_all_parts)
-    sys.stdout.write('\nMAF: Hit at least one part: %d' % s_maf_hit_one_part)
-    sys.stdout.write('\nMAF: Equals at least one part: %d' % s_maf_eq_one_part)
+    sys.stdout.write("\nMAF: Correct alignment: %d" % s_maf_good_alignments)
+    sys.stdout.write("\nMAF: Hit all parts: %d" % s_maf_hit_all_parts)
+    sys.stdout.write("\nMAF: Hit at least one part: %d" % s_maf_hit_one_part)
+    sys.stdout.write("\nMAF: Equals at least one part: %d" % s_maf_eq_one_part)
 
-    sys.stdout.write('\nMAF: Number of split reads: %d' % s_maf_split_reads)
-    sys.stdout.write('\nMAF: Correct alignment, SPLIT read: %d' % s_maf_good_split_alignments)
-    sys.stdout.write('\nMAF: Hit all parts, SPLIT read: %d' % s_maf_split_hit_all_parts)
-    sys.stdout.write('\nMAF: Hit at least one part, SPLIT read: %d' % s_maf_split_hit_one_part)
-    sys.stdout.write('\nMAF: Equals at least one part, SPLIT read: %d' % s_maf_split_eq_one_part)
+    sys.stdout.write("\nMAF: Number of split reads: %d" % s_maf_split_reads)
+    sys.stdout.write(
+        "\nMAF: Correct alignment, SPLIT read: %d" % s_maf_good_split_alignments
+    )
+    sys.stdout.write("\nMAF: Hit all parts, SPLIT read: %d" % s_maf_split_hit_all_parts)
+    sys.stdout.write(
+        "\nMAF: Hit at least one part, SPLIT read: %d" % s_maf_split_hit_one_part
+    )
+    sys.stdout.write(
+        "\nMAF: Equals at least one part, SPLIT read: %d" % s_maf_split_eq_one_part
+    )
 
-    sys.stdout.write('\nMAF: Partial alignment that misses: %d' % s_maf_miss_alignment)
-    sys.stdout.write('\nMAF: More alignments than expected: %d' % s_maf_too_many_alignments)
-    sys.stdout.write('\nMAF: Multihit parts (fragmented) alignments: %d' % s_maf_multihit_parts)
+    sys.stdout.write("\nMAF: Partial alignment that misses: %d" % s_maf_miss_alignment)
+    sys.stdout.write(
+        "\nMAF: More alignments than expected: %d" % s_maf_too_many_alignments
+    )
+    sys.stdout.write(
+        "\nMAF: Multihit parts (fragmented) alignments: %d" % s_maf_multihit_parts
+    )
 
-    sys.stdout.write('\nDone!\n')
+    sys.stdout.write("\nDone!\n")
 
     # Closing file with names
     if split_qnames:
@@ -700,39 +800,59 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
 
 
 def verbose_usage_and_exit():
-    sys.stderr.write('Process pbsim data - A tool for processing data generated by pbsim.\n')
-    sys.stderr.write('                   - Collects data generated for multiple references.\n')
-    sys.stderr.write('                   - And adjusts headers to reflect a reference of origin.\n')
-    sys.stderr.write('\n')
-    sys.stderr.write('Usage:\n')
-    sys.stderr.write('\t%s [mode]\n' % sys.argv[0])
-    sys.stderr.write('\n')
-    sys.stderr.write('\tmode:\n')
-    sys.stderr.write('\t\tprocess\n')
-    sys.stderr.write('\n')
+    sys.stderr.write(
+        "Process pbsim data - A tool for processing data generated by pbsim.\n"
+    )
+    sys.stderr.write(
+        "                   - Collects data generated for multiple references.\n"
+    )
+    sys.stderr.write(
+        "                   - And adjusts headers to reflect a reference of origin.\n"
+    )
+    sys.stderr.write("\n")
+    sys.stderr.write("Usage:\n")
+    sys.stderr.write("\t%s [mode]\n" % sys.argv[0])
+    sys.stderr.write("\n")
+    sys.stderr.write("\tmode:\n")
+    sys.stderr.write("\t\tprocess\n")
+    sys.stderr.write("\n")
     exit(0)
 
-if __name__ == '__main__':
-    if (len(sys.argv) < 2):
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
         verbose_usage_and_exit()
 
     mode = sys.argv[1]
 
-    if (mode == 'process'):
-        if (len(sys.argv) < 5):
-            sys.stderr.write('Processes a folder containing data generated by pbsim.\n')
-            sys.stderr.write('Joins all generated reads into a single FASTQ file.\n')
-            sys.stderr.write('Expands existing headers with the name of originating reference.\n')
-            sys.stderr.write('Usage:\n')
-            sys.stderr.write('%s %s <pbsim data folder> <results file> <annotations file> <options>\n'% (sys.argv[0], sys.argv[1]))
-            sys.stderr.write('\n')
-            sys.stderr.write('\noptions:\n')
-            sys.stderr.write('\t\t--split-qnames: while calculating the statistics also sorts query names\n')
-            sys.stderr.write('\t\t                into four files - file_correct.names, file_hitall.names\n')
-            sys.stderr.write('\t\t                                  file_hitone.names, file_bad.names\n')
-            sys.stderr.write('\t\t--print_mapping [filename]: Print information about actual and expected alignments\n')
-            sys.stderr.write('\t\t                into a give text file.\n')
-            sys.stderr.write('\n')
+    if mode == "process":
+        if len(sys.argv) < 5:
+            sys.stderr.write("Processes a folder containing data generated by pbsim.\n")
+            sys.stderr.write("Joins all generated reads into a single FASTQ file.\n")
+            sys.stderr.write(
+                "Expands existing headers with the name of originating reference.\n"
+            )
+            sys.stderr.write("Usage:\n")
+            sys.stderr.write(
+                "%s %s <pbsim data folder> <results file> <annotations file> <options>\n"
+                % (sys.argv[0], sys.argv[1])
+            )
+            sys.stderr.write("\n")
+            sys.stderr.write("\noptions:\n")
+            sys.stderr.write(
+                "\t\t--split-qnames: while calculating the statistics also sorts query names\n"
+            )
+            sys.stderr.write(
+                "\t\t                into four files - file_correct.names, file_hitall.names\n"
+            )
+            sys.stderr.write(
+                "\t\t                                  file_hitone.names, file_bad.names\n"
+            )
+            sys.stderr.write(
+                "\t\t--print_mapping [filename]: Print information about actual and expected alignments\n"
+            )
+            sys.stderr.write("\t\t                into a give text file.\n")
+            sys.stderr.write("\n")
             exit(1)
 
         datafolder = sys.argv[2]
@@ -741,9 +861,9 @@ if __name__ == '__main__':
 
         pparser = paramsparser.Parser(paramdefs)
         paramdict = pparser.parseCmdArgs(sys.argv[5:])
-        paramdict['command'] = ' '.join(sys.argv)
+        paramdict["command"] = " ".join(sys.argv)
 
         processData(datafolder, resultfile, annotationfile, paramdict)
 
     else:
-        print('Invalid mode!')
+        print("Invalid mode!")

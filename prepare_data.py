@@ -11,7 +11,7 @@ import re
 
 # To enable importing from samscripts submodule
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(SCRIPT_PATH, 'samscripts/src'))
+sys.path.append(os.path.join(SCRIPT_PATH, "samscripts/src"))
 import utility_sam
 from . import Annotation_formats
 
@@ -20,11 +20,11 @@ from fastqparser import read_fastq
 
 # String that will disqualify a fasta or annotation line
 # All lines containing a bad string will be dropped
-bad_strings = ['NW_']
+bad_strings = ["NW_"]
 
-bad_strings_annnotations = ['random', 'chrUn']
+bad_strings_annnotations = ["random", "chrUn"]
 
-bad_strings_genomes = ['scaffold', 'patch']
+bad_strings_genomes = ["scaffold", "patch"]
 
 # Predefined values for spliting transcriptomes for used organisms
 split_sc = {1: 4000, 2: 1000, 3: 1000}
@@ -53,17 +53,16 @@ ALTERNATE_SPLICINGS_TO_KEEP = 3
 KEEP_DUPLICATES = False
 
 
-
 # Prepare genome reference for drosophila melanogaster
 def prepare_dm_genome(genome_file):
     filename, file_extension = os.path.ext(genome_file)
-    processed_genome_file = filename + '_P' + file_extension
+    processed_genome_file = filename + "_P" + file_extension
     [headers, seqs, quals] = read_fastq(genome_file)
 
-    with open(processed_genome_file, 'w') as pgfile:
+    with open(processed_genome_file, "w") as pgfile:
         for i in range(len(headers)):
             header = headers[i]
-            new_header = 'ERROR!'       # In case it somehow slips through
+            new_header = "ERROR!"  # In case it somehow slips through
             seq = seqs[i]
             qual = quals[i]
             goodLine = True
@@ -75,48 +74,54 @@ def prepare_dm_genome(genome_file):
                     break
 
             if goodLine:
-                pos = header.find('chromosome')
+                pos = header.find("chromosome")
                 if pos > -1:
-                    pos2 = header[pos:].find(' ')
-                    pos3 = header[pos+pos2+1:].find(' ')    # Looking for second space
+                    pos2 = header[pos:].find(" ")
+                    pos3 = header[pos + pos2 + 1 :].find(
+                        " "
+                    )  # Looking for second space
                     if pos3 == -1:
-                        new_header = 'chr' + header[pos+pos2+1:]
+                        new_header = "chr" + header[pos + pos2 + 1 :]
                     else:
-                        new_header = 'chr' + header[pos+pos2+1:pos+pos2+1+pos3]
-                elif header.find('chr') > -1:
+                        new_header = (
+                            "chr" + header[pos + pos2 + 1 : pos + pos2 + 1 + pos3]
+                        )
+                elif header.find("chr") > -1:
                     # If we can find chr and not chromosome, assume that this header is as it should be
                     new_header = header
                 else:
-                    pos = header.find('mitochondrion')
+                    pos = header.find("mitochondrion")
                     if pos > -1:
-                        new_header = 'chrM'
+                        new_header = "chrM"
                     else:
                         # This shouldn't happens
                         import pdb
+
                         pdb.set_trace()
-                        raise Exception('Invalid DM genome header: %s!') % header
+                        raise Exception("Invalid DM genome header: %s!") % header
 
             if goodLine:
-                if file_extension.lower() in ['.fa', '.fna', 'faa', '.fasta']:
-                    pgfile.write('>' + new_header + '\n')
-                    pgfile.write(seq + '\n')
-                elif file_extension.lower() in ['.fq', '.fastq']:
-                    pgfile.write('@' + new_header + '\n')
-                    pgfile.write(seq + '\n')
-                    pgfile.write('+' + new_header + '\n')
-                    pgfile.write(qual + '\n')
+                if file_extension.lower() in [".fa", ".fna", "faa", ".fasta"]:
+                    pgfile.write(">" + new_header + "\n")
+                    pgfile.write(seq + "\n")
+                elif file_extension.lower() in [".fq", ".fastq"]:
+                    pgfile.write("@" + new_header + "\n")
+                    pgfile.write(seq + "\n")
+                    pgfile.write("+" + new_header + "\n")
+                    pgfile.write(qual + "\n")
                 else:
-                    pgfile.write(r'@ERROR occured. File is NOT COMPLETE!')
-                    raise Exception('Invalid file extension: %s' % file_extension)
-
+                    pgfile.write(r"@ERROR occured. File is NOT COMPLETE!")
+                    raise Exception("Invalid file extension: %s" % file_extension)
 
 
 # Prepare genome annotations for drosophila melanogaster
 def prepare_dm_annotations(annotations_file):
     filename, file_extension = os.path.splitext(annotations_file)
-    processed_annotations_file = filename + '_P' + file_extension
+    processed_annotations_file = filename + "_P" + file_extension
 
-    with open(processed_annotations_file, 'w') as pafile, open(annotations_file, 'r') as afile:
+    with open(processed_annotations_file, "w") as pafile, open(
+        annotations_file, "r"
+    ) as afile:
         for line in afile:
             goodLine = True
 
@@ -133,18 +138,17 @@ def prepare_dm_annotations(annotations_file):
                 pafile.write(line)
 
 
-
 # Prepare genome reference for saccharomyces cerevisiae
 # Processed file will be added '_P' before extension
 def prepare_sc_genome(genome_file):
     filename, file_extension = os.path.splitext(genome_file)
-    processed_genome_file = filename + '_P' + file_extension
+    processed_genome_file = filename + "_P" + file_extension
     [headers, seqs, quals] = read_fastq(genome_file)
 
-    with open(processed_genome_file, 'w') as pgfile:
+    with open(processed_genome_file, "w") as pgfile:
         for i in range(len(headers)):
             header = headers[i]
-            new_header = 'ERROR!'       # In case it somehow slips through
+            new_header = "ERROR!"  # In case it somehow slips through
             seq = seqs[i]
             qual = quals[i]
             goodLine = True
@@ -157,39 +161,39 @@ def prepare_sc_genome(genome_file):
 
             # If the line is still good, transform header name to desired form
             if goodLine:
-                pos = header.find('chromosome')
+                pos = header.find("chromosome")
                 if pos > -1:
-                    pos2 = header[pos:].find(',')
-                    new_header = 'chr' + header[pos+11:pos+pos2]
-                elif header.find('chr') > -1:
+                    pos2 = header[pos:].find(",")
+                    new_header = "chr" + header[pos + 11 : pos + pos2]
+                elif header.find("chr") > -1:
                     # If we can find chr and not chromosome, assume that this header is as it should be
                     new_header = header
                 else:
-                    pos = header.find('mitochondrion')
+                    pos = header.find("mitochondrion")
                     if pos > -1:
-                        new_header = 'chrM'
+                        new_header = "chrM"
                     else:
                         # This shouldn't happens
-                        raise Exception('Invalid SC genome header: %s!' % header)
+                        raise Exception("Invalid SC genome header: %s!" % header)
 
             if goodLine:
-                if file_extension.lower() in ['.fa', '.fna', 'faa', '.fasta']:
-                    pgfile.write('>' + new_header + '\n')
-                    pgfile.write(seq + '\n')
-                elif file_extension.lower() in ['.fq', '.fastq']:
-                    pgfile.write('@' + new_header + '\n')
-                    pgfile.write(seq + '\n')
-                    pgfile.write('+' + new_header + '\n')
-                    pgfile.write(qual + '\n')
+                if file_extension.lower() in [".fa", ".fna", "faa", ".fasta"]:
+                    pgfile.write(">" + new_header + "\n")
+                    pgfile.write(seq + "\n")
+                elif file_extension.lower() in [".fq", ".fastq"]:
+                    pgfile.write("@" + new_header + "\n")
+                    pgfile.write(seq + "\n")
+                    pgfile.write("+" + new_header + "\n")
+                    pgfile.write(qual + "\n")
                 else:
-                    pgfile.write(r'@ERROR occured. File is NOT COMPLETE!')
-                    raise Exception('Invalid file extension: %s' % file_extension)
+                    pgfile.write(r"@ERROR occured. File is NOT COMPLETE!")
+                    raise Exception("Invalid file extension: %s" % file_extension)
 
 
 # Prepare genome annotations for saccharomyces cerevisiae
 def prepare_sc_annotations(annotations_file):
     # ATM these annotations seem to be OK
-    sys.stdout.write('\nNothing to do with SC annotations!')
+    sys.stdout.write("\nNothing to do with SC annotations!")
     pass
 
 
@@ -201,9 +205,9 @@ def split_transcriptome(transcriptome_file):
     limits = limits_sc
 
     filename, file_extension = os.path.splitext(transcriptome_file)
-    g1_filename = filename + '_G1' + file_extension
-    g2_filename = filename + '_G2' + file_extension
-    g3_filename = filename + '_G3' + file_extension
+    g1_filename = filename + "_G1" + file_extension
+    g2_filename = filename + "_G2" + file_extension
+    g3_filename = filename + "_G3" + file_extension
     [headers, seqs, quals] = read_fastq(transcriptome_file)
 
     total = sum(split.values())
@@ -212,12 +216,14 @@ def split_transcriptome(transcriptome_file):
 
     random.seed()
 
-    with open(g1_filename, 'w') as g1file, open(g2_filename, 'w') as g2file, open(g3_filename, 'w') as g3file:
+    with open(g1_filename, "w") as g1file, open(g2_filename, "w") as g2file, open(
+        g3_filename, "w"
+    ) as g3file:
         for i in range(len(headers)):
             header = headers[i]
             seq = seqs[i]
             qual = quals[i]
-            rnum = random.randint(0, total)     # Generate random number
+            rnum = random.randint(0, total)  # Generate random number
             gfile = None
             if rnum < limits[0]:
                 gfile = g1file
@@ -226,45 +232,48 @@ def split_transcriptome(transcriptome_file):
             elif rnum < limits[2]:
                 gfile = g3file
             else:
-                continue       # Skip this sequence
+                continue  # Skip this sequence
 
-            if file_extension.lower() in ['.fa', '.fna', 'faa', '.fasta']:
-                gfile.write('>' + header + '\n')
-                gfile.write(seq + '\n')
-            elif file_extension.lower() in ['.fq', '.fastq']:
-                gfile.write('@' + header + '\n')
-                gfile.write(seq + '\n')
-                gfile.write('+' + header + '\n')
-                gfile.write(qual + '\n')
+            if file_extension.lower() in [".fa", ".fna", "faa", ".fasta"]:
+                gfile.write(">" + header + "\n")
+                gfile.write(seq + "\n")
+            elif file_extension.lower() in [".fq", ".fastq"]:
+                gfile.write("@" + header + "\n")
+                gfile.write(seq + "\n")
+                gfile.write("+" + header + "\n")
+                gfile.write(qual + "\n")
 
 
 # Prepare genome reference for homo sapiens
 # Using only the chromosome 19 Primary assembly
 def prepare_human_genome(genome_file):
     filename, file_extension = os.path.splitext(genome_file)
-    processed_genome_file = filename + '_P' + file_extension
+    processed_genome_file = filename + "_P" + file_extension
     [headers, seqs, quals] = read_fastq(genome_file)
 
-    with open(processed_genome_file, 'w') as pgfile:
+    with open(processed_genome_file, "w") as pgfile:
         for i in range(len(headers)):
             header = headers[i]
-            new_header = 'chr19'
+            new_header = "chr19"
             seq = seqs[i]
             qual = quals[i]
 
-            if header.find('chromosome 19') > -1 and header.find('Primary Assembly') > -1:
+            if (
+                header.find("chromosome 19") > -1
+                and header.find("Primary Assembly") > -1
+            ):
 
-                if file_extension.lower() in ['.fa', '.fna', 'faa', '.fasta']:
-                    pgfile.write('>' + new_header + '\n')
-                    pgfile.write(seq + '\n')
-                elif file_extension.lower() in ['.fq', '.fastq']:
-                    pgfile.write('@' + new_header + '\n')
-                    pgfile.write(seq + '\n')
-                    pgfile.write('+' + new_header + '\n')
-                    pgfile.write(qual + '\n')
+                if file_extension.lower() in [".fa", ".fna", "faa", ".fasta"]:
+                    pgfile.write(">" + new_header + "\n")
+                    pgfile.write(seq + "\n")
+                elif file_extension.lower() in [".fq", ".fastq"]:
+                    pgfile.write("@" + new_header + "\n")
+                    pgfile.write(seq + "\n")
+                    pgfile.write("+" + new_header + "\n")
+                    pgfile.write(qual + "\n")
                 else:
-                    pgfile.write(r'@ERROR occured. File is NOT COMPLETE!')
-                    raise Exception('Invalid file extension: %s' % file_extension)
+                    pgfile.write(r"@ERROR occured. File is NOT COMPLETE!")
+                    raise Exception("Invalid file extension: %s" % file_extension)
 
                 break
 
@@ -273,13 +282,15 @@ def prepare_human_genome(genome_file):
 # Using only annotations for chromosome 19 Primary assembly
 def prepare_human_annotations(annotations_file):
     filename, file_extension = os.path.splitext(annotations_file)
-    processed_annotations_file = filename + '_P' + file_extension
+    processed_annotations_file = filename + "_P" + file_extension
 
-    with open(processed_annotations_file, 'w') as pafile, open(annotations_file, 'r') as afile:
+    with open(processed_annotations_file, "w") as pafile, open(
+        annotations_file, "r"
+    ) as afile:
         for line in afile:
             goodLine = True
 
-            if goodLine and line.find('chr19') > -1:
+            if goodLine and line.find("chr19") > -1:
                 # Lines already contain new line character
                 # pafile.write(line + '\n')
 
@@ -290,11 +301,13 @@ def prepare_human_annotations(annotations_file):
 # Using only annotations for chromosome 19 Primary assembly
 def prepare_human_annotations_all(annotations_file):
     filename, file_extension = os.path.splitext(annotations_file)
-    processed_annotations_file = filename + '_P2' + file_extension
+    processed_annotations_file = filename + "_P2" + file_extension
 
-    pattern1 = r'(chr)(\d*)'
-    pattern2 = r'(chr)(\w*)'
-    with open(processed_annotations_file, 'w') as pafile, open(annotations_file, 'r') as afile:
+    pattern1 = r"(chr)(\d*)"
+    pattern2 = r"(chr)(\w*)"
+    with open(processed_annotations_file, "w") as pafile, open(
+        annotations_file, "r"
+    ) as afile:
         for line in afile:
             goodLine = True
             match1 = re.search(pattern1, line)
@@ -308,15 +321,15 @@ def prepare_human_annotations_all(annotations_file):
 def split_alternate(annotations_file):
 
     filename, file_extension = os.path.splitext(annotations_file)
-    processed_annotations_file_AS = filename + '_AS' + file_extension
-    processed_annotations_file_SS = filename + '_SS' + file_extension
+    processed_annotations_file_AS = filename + "_AS" + file_extension
+    processed_annotations_file_SS = filename + "_SS" + file_extension
 
-    if file_extension.lower() in ['.gtf', '.gff']:
-        filetype = 'GTF'
-    elif file_extension.lower() in ['.bed']:
-        filetype = 'BED'
+    if file_extension.lower() in [".gtf", ".gff"]:
+        filetype = "GTF"
+    elif file_extension.lower() in [".bed"]:
+        filetype = "BED"
     else:
-        raise Exception('Invalid annotation file type: %s' % file_extension)
+        raise Exception("Invalid annotation file type: %s" % file_extension)
 
     # Reading annotation file
     # annotations = Annotation_formats.Load_Annotation_From_File(annotations_file, check_duplicates = True)
@@ -342,7 +355,11 @@ def split_alternate(annotations_file):
             group_chrom = new_annotation.seqname
             start_new_group = False
         else:
-            if new_annotation.overlapsGene(group_start, group_end) and group_strand == new_annotation.strand and group_chrom == new_annotation.seqname:
+            if (
+                new_annotation.overlapsGene(group_start, group_end)
+                and group_strand == new_annotation.strand
+                and group_chrom == new_annotation.seqname
+            ):
                 # Add annotation to current group
                 annotation_group.append(new_annotation)
                 # Adjust group start and end
@@ -364,7 +381,6 @@ def split_alternate(annotations_file):
     if len(annotation_group) > 0:
         grouped_annotations.append(annotation_group)
 
-
     # Annotations with alternate splicing
     as_annotations = []
 
@@ -381,59 +397,74 @@ def split_alternate(annotations_file):
             i = 0
             tr = 0
             for annotation in annotation_group:
-                if ALTERNATE_SPLICINGS_TO_KEEP > 0 and ALTERNATE_SPLICINGS_TO_KEEP <= tr:
+                if (
+                    ALTERNATE_SPLICINGS_TO_KEEP > 0
+                    and ALTERNATE_SPLICINGS_TO_KEEP <= tr
+                ):
                     break
-                if annotation_group[i].genename in ss_annotations or annotation_group[i].genename in as_annotations:
+                if (
+                    annotation_group[i].genename in ss_annotations
+                    or annotation_group[i].genename in as_annotations
+                ):
                     duplicate_genename = True
                 else:
                     as_annotations.append(annotation_group[i].genename)
                     tr += 1
                 i += 1
         else:
-            if annotation_group[0].genename in ss_annotations or annotation_group[0].genename in as_annotations:
+            if (
+                annotation_group[0].genename in ss_annotations
+                or annotation_group[0].genename in as_annotations
+            ):
                 duplicate_genename = True
             else:
                 ss_annotations.append(annotation_group[0].genename)
 
     if duplicate_genename:
-        sys.stderr.write('\nWARNING: there were duplicate annotations!\n')
-
+        sys.stderr.write("\nWARNING: there were duplicate annotations!\n")
 
     # Reading original annotations file and writing lines in separate files for
     # single-splicing and alternate-splicing
     # Variable old_genename is used to detect genename change in gtf files, in case duplicate annotations need to be skipped.
     # It is assumed that duplicate genename enteries do not come one after the other (there are other enteries inbetween)
-    old_genename = ''
-    with open(processed_annotations_file_AS, 'w') as pafile_AS, open(processed_annotations_file_SS, 'w') as pafile_SS, open(annotations_file) as afile:
+    old_genename = ""
+    with open(processed_annotations_file_AS, "w") as pafile_AS, open(
+        processed_annotations_file_SS, "w"
+    ) as pafile_SS, open(annotations_file) as afile:
         for line in afile:
             is_AS = False
             is_SS = False
 
-            count = 0       # Used for sanity check
+            count = 0  # Used for sanity check
             # extracting genename from annotation line
-            if filetype == 'BED':
-                if line.startswith('#') or line.startswith('track') or line.startswith('browser'):
+            if filetype == "BED":
+                if (
+                    line.startswith("#")
+                    or line.startswith("track")
+                    or line.startswith("browser")
+                ):
                     pass
                 else:
                     elements = line.split()
                     genename = elements[3]
-            elif filetype == 'GTF':
-                genename = 'Unknown'
-                elements = line.split('\t')
+            elif filetype == "GTF":
+                genename = "Unknown"
+                elements = line.split("\t")
                 att_line = elements[8]
-                att_list = att_line.split(';')          # Separating attribute definitions
+                att_list = att_line.split(";")  # Separating attribute definitions
                 for i in range(len(att_list)):
-                    elements = att_list[i].split()      # Separating key and value for each attribute
-                    if len(elements) > 1 and elements[0] == 'transcript_id':
+                    elements = att_list[
+                        i
+                    ].split()  # Separating key and value for each attribute
+                    if len(elements) > 1 and elements[0] == "transcript_id":
                         genename = elements[1][1:-1]
-
 
             # Checking if the line is for an alternate spliced gene
             if genename in as_annotations:
                 is_AS = True
                 pafile_AS.write(line)
                 if not KEEP_DUPLICATES:
-                    if filetype == 'BED':
+                    if filetype == "BED":
                         as_annotations.remove(genename)
 
             # Checking if the line is for a single spliced gene
@@ -441,10 +472,15 @@ def split_alternate(annotations_file):
                 is_SS = True
                 pafile_SS.write(line)
                 if not KEEP_DUPLICATES:
-                    if filetype == 'BED':
+                    if filetype == "BED":
                         ss_annotations.remove(genename)
 
-            if not KEEP_DUPLICATES and filetype == 'GTF' and old_genename != '' and old_genename != genename:
+            if (
+                not KEEP_DUPLICATES
+                and filetype == "GTF"
+                and old_genename != ""
+                and old_genename != genename
+            ):
                 if old_genename in as_annotations:
                     as_annotations.remove(old_genename)
                 if old_genename in ss_annotations:
@@ -458,7 +494,9 @@ def split_alternate(annotations_file):
             #     pdb.set_trace()
 
             if is_AS and is_SS:
-                sys.stderr.write('\nERROR: genename found in both lists (single splices and alternate spliced)\n')
+                sys.stderr.write(
+                    "\nERROR: genename found in both lists (single splices and alternate spliced)\n"
+                )
                 sys.stderr.write(line)
 
 
@@ -468,99 +506,109 @@ def expandHeader(fastfile, sstring):
     filename, file_extension = os.path.splitext(fastfile)
     [headers, seqs, quals] = read_fastq(fastfile)
 
-    with open(fastfile, 'w') as ffile:
+    with open(fastfile, "w") as ffile:
         for i in range(len(headers)):
             header = headers[i]
             new_header = sstring + header
             seq = seqs[i]
             qual = quals[i]
 
-            if file_extension.lower() in ['.fa', '.fna', 'faa', '.fasta']:
-                ffile.write('>' + new_header + '\n')
-                pgfffileile.write(seq + '\n')
-            elif file_extension.lower() in ['.fq', '.fastq']:
-                ffile.write('@' + new_header + '\n')
-                ffile.write(seq + '\n')
-                ffile.write('+' + new_header + '\n')
-                ffile.write(qual + '\n')
+            if file_extension.lower() in [".fa", ".fna", "faa", ".fasta"]:
+                ffile.write(">" + new_header + "\n")
+                pgfffileile.write(seq + "\n")
+            elif file_extension.lower() in [".fq", ".fastq"]:
+                ffile.write("@" + new_header + "\n")
+                ffile.write(seq + "\n")
+                ffile.write("+" + new_header + "\n")
+                ffile.write(qual + "\n")
             else:
-                ffile.write(r'@ERROR occured. File is NOT COMPLETE!')
-                raise Exception('Invalid file extension: %s' % file_extension)
-
+                ffile.write(r"@ERROR occured. File is NOT COMPLETE!")
+                raise Exception("Invalid file extension: %s" % file_extension)
 
 
 def verbose_usage_and_exit():
-    sys.stderr.write('RNAseqEval - A tool for evaulating RNAseq results.\n')
-    sys.stderr.write('This script is used to prepare genome reference and annotation files.\n')
-    sys.stderr.write('\n')
-    sys.stderr.write('Usage:\n')
-    sys.stderr.write('\t%s [mode] [filename]\n' % sys.argv[0])
-    sys.stderr.write('\n')
-    sys.stderr.write('\tmode:\n')
-    sys.stderr.write('\t\tsc-genome - Process S.Cerevisiae genome\n')
-    sys.stderr.write('\t\tsc-annotations - Process S.Cerevisiae annotations\n')
-    sys.stderr.write('\t\ttrans-split - Split a transcriptome into 3 groups\n')
-    sys.stderr.write('\t\tdm-genome - Process D-Melanogaster genome\n')
-    sys.stderr.write('\t\tdm-annotations - Process D-Melanogaster annotations\n')
-    sys.stderr.write('\t\th-genome - Process human genome\n')
-    sys.stderr.write('\t\th-annotations - Process human annotations\n')
-    sys.stderr.write('\t\th-annotations-all - Process human annotations - ALL\n')
-    sys.stderr.write('\t\tsplit-alternate - Split transcriptome into transcripts with only one splicing\n')
-    sys.stderr.write('\t\t                  and transcripts with alternate splicings.\n')
-    sys.stderr.write('\t\t                  Keep only a given number of alternate splicings.\n')
-    sys.stderr.write('\n')
-    sys.stderr.write('Alternate usage:\n')
-    sys.stderr.write('\t%s expand-headers [filename] [string]\n' % sys.argv[0])
-    sys.stderr.write('\t\t - Add a string at the beginning of each header in a fasta/fastq file\n')
-    sys.stderr.write('\n')
+    sys.stderr.write("RNAseqEval - A tool for evaulating RNAseq results.\n")
+    sys.stderr.write(
+        "This script is used to prepare genome reference and annotation files.\n"
+    )
+    sys.stderr.write("\n")
+    sys.stderr.write("Usage:\n")
+    sys.stderr.write("\t%s [mode] [filename]\n" % sys.argv[0])
+    sys.stderr.write("\n")
+    sys.stderr.write("\tmode:\n")
+    sys.stderr.write("\t\tsc-genome - Process S.Cerevisiae genome\n")
+    sys.stderr.write("\t\tsc-annotations - Process S.Cerevisiae annotations\n")
+    sys.stderr.write("\t\ttrans-split - Split a transcriptome into 3 groups\n")
+    sys.stderr.write("\t\tdm-genome - Process D-Melanogaster genome\n")
+    sys.stderr.write("\t\tdm-annotations - Process D-Melanogaster annotations\n")
+    sys.stderr.write("\t\th-genome - Process human genome\n")
+    sys.stderr.write("\t\th-annotations - Process human annotations\n")
+    sys.stderr.write("\t\th-annotations-all - Process human annotations - ALL\n")
+    sys.stderr.write(
+        "\t\tsplit-alternate - Split transcriptome into transcripts with only one splicing\n"
+    )
+    sys.stderr.write(
+        "\t\t                  and transcripts with alternate splicings.\n"
+    )
+    sys.stderr.write(
+        "\t\t                  Keep only a given number of alternate splicings.\n"
+    )
+    sys.stderr.write("\n")
+    sys.stderr.write("Alternate usage:\n")
+    sys.stderr.write("\t%s expand-headers [filename] [string]\n" % sys.argv[0])
+    sys.stderr.write(
+        "\t\t - Add a string at the beginning of each header in a fasta/fastq file\n"
+    )
+    sys.stderr.write("\n")
     exit(0)
 
-if __name__ == '__main__':
-    if (len(sys.argv) < 3):
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
         verbose_usage_and_exit()
 
     mode = sys.argv[1]
 
-    if (mode == 'sc-genome'):
+    if mode == "sc-genome":
         genome_file = sys.argv[2]
         prepare_sc_genome(genome_file)
 
-    elif (mode == 'sc-annotations'):
+    elif mode == "sc-annotations":
         annotations_file = sys.argv[2]
         prepare_sc_annotations(annotations_file)
 
-    elif (mode == 'trans-split'):
+    elif mode == "trans-split":
         transcriptome_file = sys.argv[2]
         split_transcriptome(transcriptome_file)
 
-    elif (mode == 'dm-genome'):
+    elif mode == "dm-genome":
         genome_file = sys.argv[2]
         prepare_dm_genome(genome_file)
 
-    elif (mode == 'dm-annotations'):
+    elif mode == "dm-annotations":
         annotations_file = sys.argv[2]
         prepare_dm_annotations(annotations_file)
 
-    elif (mode == 'h-genome'):
+    elif mode == "h-genome":
         genome_file = sys.argv[2]
         prepare_human_genome(genome_file)
 
-    elif (mode == 'h-annotations'):
+    elif mode == "h-annotations":
         annotations_file = sys.argv[2]
         prepare_human_annotations(annotations_file)
 
-    elif (mode == 'h-annotations-all'):
+    elif mode == "h-annotations-all":
         annotations_file = sys.argv[2]
         prepare_human_annotations_all(annotations_file)
 
-    elif (mode == 'split-alternate'):
+    elif mode == "split-alternate":
         annotations_file = sys.argv[2]
         split_alternate(annotations_file)
 
-    elif (mode == 'expand-headers'):
+    elif mode == "expand-headers":
         fastfile = sys.argv[2]
         sstring = sys.argv[3]
         expandHeader(fastfile, sstring)
 
     else:
-        print('Invalid mode: %s!' % mode)
+        print("Invalid mode: %s!" % mode)

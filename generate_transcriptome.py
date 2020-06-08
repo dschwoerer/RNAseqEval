@@ -3,12 +3,16 @@ import sys
 CHUNK_LENGTH = 60
 T_ID = "transcript_id"
 
+
 class Exon:
     """
     Represents an exon parsed from a GTF file.
     https://genome.ucsc.edu/FAQ/FAQformat.html#format4
     """
-    def __init__(self, seqname, source, feature, start, end, score, strand, frame, attribute):
+
+    def __init__(
+        self, seqname, source, feature, start, end, score, strand, frame, attribute
+    ):
         self.seqname = seqname
         self.source = source
         self.feature = feature
@@ -20,7 +24,7 @@ class Exon:
         self.attribute = attribute
 
         for a in attribute.split(";"):
-            key,value = a.strip().split(" ")
+            key, value = a.strip().split(" ")
             if key == T_ID:
                 self.trans_id = value.strip('"')
                 break
@@ -29,33 +33,47 @@ class Exon:
             print("No transcript id!\n" + self)
 
     def __str__(self):
-        return "Exon: \n" + " ".join([self.seqname, self.source, self.feature, \
-            str(self.start), str(self.end), self.score, self.strand, self.frame, self.attribute])
+        return "Exon: \n" + " ".join(
+            [
+                self.seqname,
+                self.source,
+                self.feature,
+                str(self.start),
+                str(self.end),
+                self.score,
+                self.strand,
+                self.frame,
+                self.attribute,
+            ]
+        )
+
 
 def complement(base):
-    if(base == 'A'):
-        return 'T'
-    if(base == 'a'):
-        return 't'
-    if(base == 'T'):
-        return 'A'
-    if(base == 't'):
-        return 'a'
-    if(base == 'G'):
-        return 'C'
-    if(base == 'g'):
-        return 'c'
-    if(base == 'C'):
-        return 'G'
-    if(base == 'c'):
-        return 'g'
-    return 'N'
+    if base == "A":
+        return "T"
+    if base == "a":
+        return "t"
+    if base == "T":
+        return "A"
+    if base == "t":
+        return "a"
+    if base == "G":
+        return "C"
+    if base == "g":
+        return "c"
+    if base == "C":
+        return "G"
+    if base == "c":
+        return "g"
+    return "N"
+
 
 def complementString(string):
     s = ""
     for c in string:
         s = s + complement(c)
     return s
+
 
 def parse(lines):
     """
@@ -78,6 +96,7 @@ def parse(lines):
         if exon.trans_id not in transToSeq:
             transToSeq[exon.trans_id] = (exon.seqname, exon.strand)
     return exons, transToSeq
+
 
 def makeRegions(tid_exons):
     """
@@ -104,32 +123,38 @@ def makeRegions(tid_exons):
         tid_regions[tid] = regions
     return tid_regions
 
+
 def makeTranscript(seq, regions, strand):
     """
     Extracts all regions from a sequence.
     """
     t = ""
-    if strand == '+':
+    if strand == "+":
         for start, end in regions:
-            t = t + seq[start-1:end]
+            t = t + seq[start - 1 : end]
     else:
         for start, end in reversed(regions):
-            t = t + complementString(seq[start-1:end][::-1])
+            t = t + complementString(seq[start - 1 : end][::-1])
     return t
+
 
 def chunks(string):
     """
     Generator for string slicing.
     """
-    return (string[0+i:CHUNK_LENGTH+i] for i in range(0, len(string), CHUNK_LENGTH))
+    return (
+        string[0 + i : CHUNK_LENGTH + i] for i in range(0, len(string), CHUNK_LENGTH)
+    )
+
 
 def writeTranscript(out_fasta, header, t):
     """
     Writes transcript to fasta file.
     """
-    out_fasta.write(header + '\n')
+    out_fasta.write(header + "\n")
     for chunk in chunks(t):
-        out_fasta.write(chunk + '\n')
+        out_fasta.write(chunk + "\n")
+
 
 def solveSeq(out_fasta, header, seq, toSolve, tid_regions, transToSeq):
     """
@@ -141,6 +166,7 @@ def solveSeq(out_fasta, header, seq, toSolve, tid_regions, transToSeq):
         tm = makeTranscript(seq, tid_regions[t], transToSeq[t][1])
         writeTranscript(out_fasta, ">" + t, tm)
     return [ind for ind in toSolve if not header[1:].startswith(transToSeq[ind][0])]
+
 
 def solveFASTA(in_fasta, out_fasta, tid_regions, transToSeq):
     """
@@ -155,13 +181,16 @@ def solveFASTA(in_fasta, out_fasta, tid_regions, transToSeq):
             continue
         if line.startswith(">"):
             if len(header) > 0:
-                toSolve = solveSeq(out_fasta, header, seq, toSolve, tid_regions, transToSeq)
+                toSolve = solveSeq(
+                    out_fasta, header, seq, toSolve, tid_regions, transToSeq
+                )
                 seq = ""
             header = line
         else:
             seq = seq + line
     if len(header) > 0:
         toSolve = solveSeq(out_fasta, header, seq, toSolve, tid_regions, transToSeq)
+
 
 def count(dict):
     n = 0
@@ -181,7 +210,7 @@ print("exons: " + str(count(tid_exons)))
 print("regions: " + str(count(tid_regions)))
 #
 in_fasta = open(sys.argv[2])
-out_fasta = open(sys.argv[3],'w')
+out_fasta = open(sys.argv[3], "w")
 solveFASTA(in_fasta, out_fasta, tid_regions, transToSeq)
 in_fasta.close()
 out_fasta.close()

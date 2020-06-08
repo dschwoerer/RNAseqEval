@@ -1,10 +1,9 @@
 #! /usr/bin/python
 
 
-DEFAULT_PARAMS = {'--version': 0
-}
+DEFAULT_PARAMS = {"--version": 0}
 
-DEFAULT_DELIMITERS = ' \n\t'
+DEFAULT_DELIMITERS = " \n\t"
 
 # TODO: Allow definition of parameter types, and then parse them according to types
 # TODO: Allow definition of function that would process each parameter (or all of them)
@@ -16,14 +15,12 @@ DEFAULT_DELIMITERS = ' \n\t'
 # either from a string or a list of comand line arguments.
 # dictionary params contains all allowed parameters annd a number of arguments for each
 class Parser:
-    def __init__(self, params = DEFAULT_PARAMS):
+    def __init__(self, params=DEFAULT_PARAMS):
         self.params = params
 
-
-    def parseString(self, string, delimiters = DEFAULT_DELIMITERS):
+    def parseString(self, string, delimiters=DEFAULT_DELIMITERS):
         args = string.split(deimiters)
         return self.parseCmdArgs(args)
-
 
     def parseCmdArgs(self, args):
         paramsdict = {}
@@ -31,13 +28,16 @@ class Parser:
         while i < len(args):
             param = args[i]
             if param not in self.params:
-                raise Exception('Invalid parameter %s' % param)
+                raise Exception("Invalid parameter %s" % param)
 
             paramlist = []
             for k in range(self.params[param]):
                 i += 1
                 if i >= len(args):
-                    raise Exception('Parameter %s does\'t have enough arguments (%d/%d)' % (aparamrg, k, self.params[param]))
+                    raise Exception(
+                        "Parameter %s does't have enough arguments (%d/%d)"
+                        % (aparamrg, k, self.params[param])
+                    )
                 paramlist.append(args[i])
             paramsdict[param] = paramlist
             i += 1

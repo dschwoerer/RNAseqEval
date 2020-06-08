@@ -2,8 +2,8 @@
 
 import sys, os
 
-GFF_STRANDFW = '+'
-GFF_STRANDRV = '-'
+GFF_STRANDFW = "+"
+GFF_STRANDRV = "-"
 GFF_FRAME = [0, 1, 2]
 
 # While calculating operations on intervals (genes, exons and read mappings)
@@ -16,7 +16,7 @@ DEFAULT_MINIMUM_OVERLAP = 5
 
 class GeneItem:
     def __init__(self):
-        self.itemName = ''
+        self.itemName = ""
         self.start = 0
         self.end = 0
         self.frame = 0
@@ -32,8 +32,16 @@ class GeneItem:
 
     # Returns true if a given interval (startpos, endpos) is inside a GeneItem (exon)
     # The interval can extend outside GeneItem at most allowed_inacc bases
-    def insideItem(self, startpos, endpos, allowed_inacc = DEFAULT_ALLOWED_INACCURACY, min_overlap = DEFAULT_MINIMUM_OVERLAP):
-        if (startpos >= self.start - allowed_inacc) and (endpos <= self.end + allowed_inacc):
+    def insideItem(
+        self,
+        startpos,
+        endpos,
+        allowed_inacc=DEFAULT_ALLOWED_INACCURACY,
+        min_overlap=DEFAULT_MINIMUM_OVERLAP,
+    ):
+        if (startpos >= self.start - allowed_inacc) and (
+            endpos <= self.end + allowed_inacc
+        ):
             return True
         else:
             return False
@@ -41,7 +49,13 @@ class GeneItem:
     # Returns true if a given interval (startpos, endpos) matches a GeneItem (exon)
     # The interval start and and can differ from GeneItems start and end by
     # at most allowed_inacc bases
-    def equalsItem(self, startpos, endpos, allowed_inacc = DEFAULT_ALLOWED_INACCURACY, min_overlap = DEFAULT_MINIMUM_OVERLAP):
+    def equalsItem(
+        self,
+        startpos,
+        endpos,
+        allowed_inacc=DEFAULT_ALLOWED_INACCURACY,
+        min_overlap=DEFAULT_MINIMUM_OVERLAP,
+    ):
         if startpos < self.start - allowed_inacc:
             return False
         if startpos > self.start + allowed_inacc:
@@ -56,7 +70,13 @@ class GeneItem:
     # Returns true if a given interval (startpos, endpos) and a GeneItem (exon)
     # start at the same position (within allowed_inacc)
     # NOTE: Consider if it might be usefull to also look at the end of the interval
-    def startsItem(self, startpos, endpos, allowed_inacc = DEFAULT_ALLOWED_INACCURACY, min_overlap = DEFAULT_MINIMUM_OVERLAP):
+    def startsItem(
+        self,
+        startpos,
+        endpos,
+        allowed_inacc=DEFAULT_ALLOWED_INACCURACY,
+        min_overlap=DEFAULT_MINIMUM_OVERLAP,
+    ):
         if startpos < self.start - allowed_inacc:
             return False
         if startpos > self.start + allowed_inacc:
@@ -67,7 +87,13 @@ class GeneItem:
     # Returns true if a given interval (startpos, endpos) and a GeneItem (exon)
     # end at the same position (within allowed_inacc)
     # NOTE: Consider if it might be usefull to also look at the start of the interval
-    def endsItem(self, startpos, endpos, allowed_inacc = DEFAULT_ALLOWED_INACCURACY, min_overlap = DEFAULT_MINIMUM_OVERLAP):
+    def endsItem(
+        self,
+        startpos,
+        endpos,
+        allowed_inacc=DEFAULT_ALLOWED_INACCURACY,
+        min_overlap=DEFAULT_MINIMUM_OVERLAP,
+    ):
         if endpos < self.end - allowed_inacc:
             return False
         if endpos > self.end + allowed_inacc:
@@ -75,16 +101,20 @@ class GeneItem:
 
         return True
 
-
     # Returns true if a given interval (startpos, endpos) overlaps a GeneItem (exon)
     # The ovelap size must be at least allowed_inacc bases
     # This implementation of overlap, will include inside
-    def overlapsItem(self, startpos, endpos, allowed_inacc = DEFAULT_ALLOWED_INACCURACY, min_overlap = DEFAULT_MINIMUM_OVERLAP):
+    def overlapsItem(
+        self,
+        startpos,
+        endpos,
+        allowed_inacc=DEFAULT_ALLOWED_INACCURACY,
+        min_overlap=DEFAULT_MINIMUM_OVERLAP,
+    ):
         if (endpos <= self.start + min_overlap) or (startpos >= self.end - min_overlap):
             return False
         else:
             return True
-
 
     # Returns a number of bases by which a given interval and a GeneItem ovelap
     def basesInside(self, startpos, endpos):
@@ -107,19 +137,17 @@ class GeneItem:
         return count
 
 
-
 class GeneDescription:
     def __init__(self):
-        self.seqname = ''
-        self.source = ''
-        self.genename = ''
-        self.transcriptname = ''
+        self.seqname = ""
+        self.source = ""
+        self.genename = ""
+        self.transcriptname = ""
         self.strand = GFF_STRANDFW
         self.start = -1
         self.end = -1
         self.score = 0.0
         self.items = []
-
 
     def getLength(self):
         return self.end - self.start
@@ -156,14 +184,26 @@ class GeneDescription:
 
         return count
 
-    def insideItems(self, startpos, endpos, allowed_inacc = DEFAULT_ALLOWED_INACCURACY, min_overlap = DEFAULT_MINIMUM_OVERLAP):
+    def insideItems(
+        self,
+        startpos,
+        endpos,
+        allowed_inacc=DEFAULT_ALLOWED_INACCURACY,
+        min_overlap=DEFAULT_MINIMUM_OVERLAP,
+    ):
         for item in self.items:
             if item.insideItem(startpos, endpos, allowed_inacc, min_overlap):
                 return True
 
         return False
 
-    def overlapsItems(self, startpos, endpos, allowed_inacc = DEFAULT_ALLOWED_INACCURACY, min_overlap = DEFAULT_MINIMUM_OVERLAP):
+    def overlapsItems(
+        self,
+        startpos,
+        endpos,
+        allowed_inacc=DEFAULT_ALLOWED_INACCURACY,
+        min_overlap=DEFAULT_MINIMUM_OVERLAP,
+    ):
         for item in self.items:
             if item.overlapsItem(startpos, endpos, allowed_inacc, min_overlap):
                 return True
@@ -190,8 +230,8 @@ class GeneDescription:
 
     # Check if annotation items are equal to another annotation
     def itemsEqual(self, otherGS):
-        items1 = sorted(self.items, key = lambda it: it.start)
-        items2 = sorted(otherGS.items, key = lambda it: it.start)
+        items1 = sorted(self.items, key=lambda it: it.start)
+        items2 = sorted(otherGS.items, key=lambda it: it.start)
 
         if len(items1) != len(items2):
             return False
@@ -207,9 +247,9 @@ class GeneDescription:
 
 class GFFLine:
     def __init__(self):
-        self.seqname = ''
-        self.source = ''
-        self.feature = ''
+        self.seqname = ""
+        self.source = ""
+        self.feature = ""
         self.start = 0
         self.end = 0
         self.score = 0.0
@@ -217,17 +257,18 @@ class GFFLine:
         self.frame = 0
         self.attribute = {}
 
+
 class BEDLine:
     def __init__(self):
-        self.chrom = ''
+        self.chrom = ""
         self.chromStart = -1
         self.chromEnd = -1
-        self.name = ''
+        self.name = ""
         self.score = -1
         self.strand = GFF_STRANDFW
         self.thickStart = -1
         self.thickEnd = -1
-        self.itemRGB = ''
+        self.itemRGB = ""
         self.blockCount = 0
         self.blockSizes = []
         self.blockStarts = []
@@ -264,8 +305,8 @@ def Annotation_From_GFF(gffline):
 
     # Extracting from GFF attributes
     # Removing double quotes!
-    genedscp.genename = gffline.attribute['gene_id'][1:-1]
-    genedscp.transcriptname = gffline.attribute['transcript_id'][1:-1]
+    genedscp.genename = gffline.attribute["gene_id"][1:-1]
+    genedscp.transcriptname = gffline.attribute["transcript_id"][1:-1]
 
     # constructing a single gene item (exon)
     geneitem = GeneItem()
@@ -277,17 +318,17 @@ def Annotation_From_GFF(gffline):
     return genedscp
 
 
-def Load_Annotation_From_File(filename, check_duplicates = False):
+def Load_Annotation_From_File(filename, check_duplicates=False):
 
     fname, fext = os.path.splitext(filename)
-    if fext == '.gff':
-        type = 'GFF'
-    elif fext == '.gtf':
-        type = 'GTF'
-    elif fext == '.bed':
-        type = 'BED'
+    if fext == ".gff":
+        type = "GFF"
+    elif fext == ".gtf":
+        type = "GTF"
+    elif fext == ".bed":
+        type = "BED"
     else:
-        raise Exception('Invalid annotation file type: %s' % fext)
+        raise Exception("Invalid annotation file type: %s" % fext)
 
     annotation_dict = {}
 
@@ -297,27 +338,31 @@ def Load_Annotation_From_File(filename, check_duplicates = False):
     # Collect the lines with the same transcript name as the same annotation
     # Since there can be more that one annotation with the same name, have to watch out
     # Colect only consequtive enteries.
-    if type == 'GFF' or type == 'GTF':
+    if type == "GFF" or type == "GTF":
         gff_lines = Load_GFF_From_File(filename)
-        old_annt_name = ''
-        curr_annt = None        # Current collected annotation
+        old_annt_name = ""
+        curr_annt = None  # Current collected annotation
         for gffline in gff_lines:
             new_annt = Annotation_From_GFF(gffline)
             new_annt_name = new_annt.transcriptname
             if old_annt_name != new_annt_name:
-                if old_annt_name != '':
+                if old_annt_name != "":
                     # Store the last collected annotation (calculate start and end position from items first)
                     curr_annt.calcBoundsFromItems()
                     annotations.append(curr_annt)
                 # Start a new collected annotation
                 curr_annt = new_annt
             else:
-                if new_annt.seqname != curr_annt.seqname or \
-                   new_annt.source != curr_annt.source or \
-                   new_annt.strand != curr_annt.strand or \
-                   new_annt.genename != curr_annt.genename or \
-                   new_annt.transcriptname != curr_annt.transcriptname:
-                    raise Exception('Invalid GFF/GTF line for transcript %s' % new_annt_name)
+                if (
+                    new_annt.seqname != curr_annt.seqname
+                    or new_annt.source != curr_annt.source
+                    or new_annt.strand != curr_annt.strand
+                    or new_annt.genename != curr_annt.genename
+                    or new_annt.transcriptname != curr_annt.transcriptname
+                ):
+                    raise Exception(
+                        "Invalid GFF/GTF line for transcript %s" % new_annt_name
+                    )
                 # Assuming that new_annt has only one item
                 assert len(new_annt.items) == 1
                 curr_annt.items.append(new_annt.items[0])
@@ -325,10 +370,10 @@ def Load_Annotation_From_File(filename, check_duplicates = False):
             old_annt_name = new_annt_name
 
         # Add the last collected annotation
-        if old_annt_name != '':
+        if old_annt_name != "":
             annotations.append(curr_annt)
 
-    elif type == 'BED':
+    elif type == "BED":
         bed_lines = Load_BED_From_File(filename)
         for bedline in bed_lines:
             annt = Annotation_From_BED(bedline)
@@ -341,62 +386,65 @@ def Load_Annotation_From_File(filename, check_duplicates = False):
         # duplicates = []
         for i in range(len(annotations)):
             genename1 = annotations[i].genename
-            for j in range(i+1, len(annotations)):
+            for j in range(i + 1, len(annotations)):
                 genename2 = annotations[j].genename
                 if genename1 == genename2:
                     import pdb
+
                     pdb.set_trace()
                     num_duplicates += 1
                     # duplicates.append(genename1)
 
         if num_duplicates > 0:
-            raise Exception('Duplicate annotations found (%d)' % num_duplicates)
+            raise Exception("Duplicate annotations found (%d)" % num_duplicates)
 
     return annotations
 
 
 def Load_GFF_From_File(filename):
     gff_lines = []
-    if not (filename.endswith('.gff') or filename.endswith('.gtf')):
-        sys.stderr.write('\nWARNING: file %s does not have GFF/GTF extension!\n' % filename)
+    if not (filename.endswith(".gff") or filename.endswith(".gtf")):
+        sys.stderr.write(
+            "\nWARNING: file %s does not have GFF/GTF extension!\n" % filename
+        )
 
     fname, fext = os.path.splitext(filename)
-    if fext == '.gff':
-        type = 'GFF'
-    elif fext == '.gtf':
-        type = 'GTF'
+    if fext == ".gff":
+        type = "GFF"
+    elif fext == ".gtf":
+        type = "GTF"
     else:
-        raise Exception('Invalid annotation file type: %s' % fext)
+        raise Exception("Invalid annotation file type: %s" % fext)
 
-    file = open(filename, 'rU')
+    file = open(filename, "rU")
     for line in file:
         # Skip comments
-        if line.startswith('#'):
+        if line.startswith("#"):
             continue
-        elements = line.split('\t')
+        elements = line.split("\t")
         gffline = GFFLine()
 
-        if elements[0] == '.':
-            gffline.seqname = ''
+        if elements[0] == ".":
+            gffline.seqname = ""
         else:
             gffline.seqname = elements[0]
-        if elements[1] == '.':
-            gffline.source = ''
+        if elements[1] == ".":
+            gffline.source = ""
         else:
             gffline.source = elements[1]
-        if elements[2] == '.':
-            gffline.feature = ''
+        if elements[2] == ".":
+            gffline.feature = ""
         else:
             gffline.feature = elements[2]
-        if elements[3] == '.':
+        if elements[3] == ".":
             gffline.start = 0
         else:
-            gffline.start =  int(elements[3])
-        if elements[4] == '.':
+            gffline.start = int(elements[3])
+        if elements[4] == ".":
             gffline.end = 0
         else:
             gffline.end = int(elements[4])
-        if elements[5] == '.':
+        if elements[5] == ".":
             gffline.score = 0.0
         else:
             gffline.score = float(elements[5])
@@ -409,19 +457,21 @@ def Load_GFF_From_File(filename):
         else:
             gffline.frame = int(elements[7])
 
-        if elements[8] == '.':
+        if elements[8] == ".":
             gffline.attribute = {}
         else:
             att_line = elements[8]
-            att_list = att_line.split(';')          # Separating attribute definitions
+            att_list = att_line.split(";")  # Separating attribute definitions
             for i in range(len(att_list)):
-                elements = att_list[i].split()      # Separating key and value for each attribute
+                elements = att_list[
+                    i
+                ].split()  # Separating key and value for each attribute
                 if len(elements) == 2:
                     gffline.attribute[elements[0]] = elements[1]
 
         # TODO: GFF and GTF contain start and stop codons, CDSs and exons
         # currently using only exons (maybe CDS would be a better choice)
-        if gffline.feature == 'exon':
+        if gffline.feature == "exon":
             gff_lines.append(gffline)
 
     return gff_lines
@@ -429,23 +479,27 @@ def Load_GFF_From_File(filename):
 
 def Load_BED_From_File(filename):
     bed_lines = []
-    if not (filename.endswith('.bed')):
-        sys.stderr.write('\nWARNING: file %s does not have BED extension!\n' % filename)
+    if not (filename.endswith(".bed")):
+        sys.stderr.write("\nWARNING: file %s does not have BED extension!\n" % filename)
 
     # Copied from GFF, might be useful in the future
     fname, fext = os.path.splitext(filename)
-    if fext == '.bed':
-        type = 'BED'
+    if fext == ".bed":
+        type = "BED"
     else:
-        raise Exception('Invalid annotation file type: %s' % fext)
+        raise Exception("Invalid annotation file type: %s" % fext)
 
-    file = open(filename, 'rU')
+    file = open(filename, "rU")
     for line in file:
         # Ignoring header lines
-        if line.startswith('#') or line.startswith('track') or line.startswith('browser'):
+        if (
+            line.startswith("#")
+            or line.startswith("track")
+            or line.startswith("browser")
+        ):
             pass
         else:
-            elements = line.split()    # splitting with default delimitters
+            elements = line.split()  # splitting with default delimitters
             attcount = len(elements)
             bedline = BEDLine()
             bedline.chrom = elements[0]
@@ -466,19 +520,18 @@ def Load_BED_From_File(filename):
             if attcount >= 10:
                 bedline.blockCount = int(elements[9])
             if attcount >= 11:
-                if elements[10].endswith(','):
+                if elements[10].endswith(","):
                     elements[10] = elements[10][:-1]
-                bedline.blockSizes = [int(el) for el in elements[10].split(',')]
+                bedline.blockSizes = [int(el) for el in elements[10].split(",")]
             if attcount >= 12:
-                if elements[11].endswith(','):
+                if elements[11].endswith(","):
                     elements[11] = elements[11][:-1]
-                bedline.blockStarts = [int(el) for el in elements[11].split(',')]
+                bedline.blockStarts = [int(el) for el in elements[11].split(",")]
 
             bed_lines.append(bedline)
 
     return bed_lines
 
 
-
 if __name__ == "__main__":
-    pass;
+    pass
