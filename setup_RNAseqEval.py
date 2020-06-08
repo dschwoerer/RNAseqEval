@@ -7,7 +7,7 @@ sys.path.append(SCRIPT_PATH + '')
 # sys.path.append(SCRIPT_PATH + '/wrappers')
 import subprocess
 
-import basicdefines
+from . import basicdefines
 
 def create_folders():
     sys.stderr.write('Generating folders...\n')

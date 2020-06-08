@@ -12,7 +12,7 @@ import random
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(SCRIPT_PATH, 'samscripts/src'))
 import utility_sam
-import Annotation_formats
+from . import Annotation_formats
 
 from fastqparser import read_fastq
 
@@ -45,7 +45,7 @@ def analyze(annotations_file):
 
     for annotation in annotations:
         group_found = False
-        for idgroup, group in annotation_groups.iteritems():
+        for idgroup, group in annotation_groups.items():
             gene_start = group[0]
             gene_end = group[1]
             trcnt = group[2]
@@ -69,7 +69,7 @@ def analyze(annotations_file):
     new = True
     new_groups = {}
     groupid = group_start = group_end = 0
-    for iden, group in sorted(annotation_groups.iteritems(), key=lambda(k,v):v[0]):
+    for iden, group in sorted(iter(annotation_groups.items()), key=lambda k_v:k_v[1][0]):
         # group = annotation_groups[iden]
 
         if new:
@@ -102,7 +102,7 @@ def analyze(annotations_file):
 
     sys.stderr.write("\nWritting annotation groups (%d)\n" % len(new_groups))
     sys.stdout.write("ID\tSTART\tEND\tTRCNT\n")
-    for idgroup in sorted(new_groups.iterkeys()):
+    for idgroup in sorted(new_groups.keys()):
         group = new_groups[idgroup]
         sys.stdout.write("%d\t%d\t%d\t%d\n" % (idgroup, group[0], group[1], group[2]))
 
@@ -129,4 +129,4 @@ if __name__ == '__main__':
         analyze(annotations_file)
 
     else:
-        print 'Invalid mode: %s!' % mode
+        print('Invalid mode: %s!' % mode)

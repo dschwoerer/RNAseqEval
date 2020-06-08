@@ -34,7 +34,7 @@ class Parser:
                 raise Exception('Invalid parameter %s' % param)
 
             paramlist = []
-            for k in xrange(self.params[param]):
+            for k in range(self.params[param]):
                 i += 1
                 if i >= len(args):
                     raise Exception('Parameter %s does\'t have enough arguments (%d/%d)' % (aparamrg, k, self.params[param]))

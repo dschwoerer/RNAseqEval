@@ -208,7 +208,7 @@ if __name__ == '__main__':
             name = '%s_%s_all.names' % (dataset, measure)
             filename = os.path.join(os.getcwd(), resultsfolder, dataset, 'all', name)
             with open(filename,'w') as f:
-                for line in dictall.iterkeys():
+                for line in dictall.keys():
                     f.write(line)
                 f.close()
 
@@ -230,7 +230,7 @@ if __name__ == '__main__':
             name = 'gm_mm2_%s_%s_both.names' % (dataset, measure)
             filename = os.path.join(os.getcwd(), resultsfolder, dataset, 'gmvsmm2', name)
             with open(filename,'w') as f:
-                for line in dictboth.iterkeys():
+                for line in dictboth.keys():
                     f.write(line)
                 f.close()
 
@@ -252,7 +252,7 @@ if __name__ == '__main__':
             name = 'gm_gmap_%s_%s_both.names' % (dataset, measure)
             filename = os.path.join(os.getcwd(), resultsfolder, dataset, 'gmvsgmap', name)
             with open(filename,'w') as f:
-                for line in dictboth.iterkeys():
+                for line in dictboth.keys():
                     f.write(line)
                 f.close()
 

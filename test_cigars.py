@@ -11,11 +11,11 @@ from datetime import datetime
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(SCRIPT_PATH, 'samscripts/src'))
 import utility_sam
-import Annotation_formats
+from . import Annotation_formats
 
-from RNAseqEval import load_and_process_reference, getChromName
+from .RNAseqEval import load_and_process_reference, getChromName
 from fastqparser import read_fastq
-from report import EvalReport, ReportType
+from .report import EvalReport, ReportType
 
 def test_cigars(samfile, fastaref):
 
@@ -30,8 +30,8 @@ def test_cigars(samfile, fastaref):
     [sam_hash, sam_hash_num_lines, sam_hash_num_unique_lines] = utility_sam.HashSAMWithFilter(samfile, qnames_with_multiple_alignments)
 
     sys.stdout.write('\nTYPE\tQNAME\tMAX numMatch\tLENGTH\tFLAG\n')
-    for (samline_key, samline_list) in sam_hash.iteritems():
-        if samline_list[0].cigar <> '*' and samline_list[0].cigar <> '':
+    for (samline_key, samline_list) in sam_hash.items():
+        if samline_list[0].cigar != '*' and samline_list[0].cigar != '':
             for samline in samline_list:
                 chromname = getChromName(samline.rname)
                 if chromname not in chromname2seq:
@@ -85,7 +85,7 @@ def test_cigars(samfile, fastaref):
                         else:
                             sys.stderr.write('\nERROR: Invalid CIGAR string operation (%s)' % op[1])
 
-                except Exception, Argument:
+                except Exception as Argument:
                     # import pdb
                     # pdb.set_trace()
                     sys.stderr.write('ERROR: querry/ref/pos/message = %s/%s/%d/%s \n' % (samline.qname, samline.rname, samline.pos, Argument))

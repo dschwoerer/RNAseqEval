@@ -13,7 +13,7 @@ import re
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(SCRIPT_PATH, 'samscripts/src'))
 import utility_sam
-import Annotation_formats
+from . import Annotation_formats
 
 from fastqparser import read_fastq
 
@@ -213,7 +213,7 @@ def split_transcriptome(transcriptome_file):
     random.seed()
 
     with open(g1_filename, 'w') as g1file, open(g2_filename, 'w') as g2file, open(g3_filename, 'w') as g3file:
-        for i in xrange(len(headers)):
+        for i in range(len(headers)):
             header = headers[i]
             seq = seqs[i]
             qual = quals[i]
@@ -422,7 +422,7 @@ def split_alternate(annotations_file):
                 elements = line.split('\t')
                 att_line = elements[8]
                 att_list = att_line.split(';')          # Separating attribute definitions
-                for i in xrange(len(att_list)):
+                for i in range(len(att_list)):
                     elements = att_list[i].split()      # Separating key and value for each attribute
                     if len(elements) > 1 and elements[0] == 'transcript_id':
                         genename = elements[1][1:-1]
@@ -563,4 +563,4 @@ if __name__ == '__main__':
         expandHeader(fastfile, sstring)
 
     else:
-        print 'Invalid mode: %s!' % mode
+        print('Invalid mode: %s!' % mode)

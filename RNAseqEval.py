@@ -2,7 +2,7 @@
 
 import sys, os
 import re
-import setup_RNAseqEval, paramsparser
+from . import setup_RNAseqEval, paramsparser
 
 # For copying SAM lines
 import copy
@@ -13,10 +13,10 @@ from datetime import datetime
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(SCRIPT_PATH, 'samscripts/src'))
 import utility_sam
-import Annotation_formats
+from . import Annotation_formats
 
 from fastqparser import read_fastq
-from report import EvalReport, ReportType
+from .report import EvalReport, ReportType
 
 # Multiprocessing stuff
 import multiprocessing
@@ -68,17 +68,17 @@ def isGoodSplitAlignment(exonhitmap, exoncompletemap, exonstartmap, exonendmap):
     if not (len(exonhitmap) == len(exoncompletemap) and len(exonhitmap) == len(exonstartmap) and len(exonhitmap) == len(exonendmap)):
         raise Exception('ERROR: Exon maps have unequal lengths (%d|%d|%d|%d)!' % (len(exonhitmap), len(exoncompletemap), len(exonstartmap), len(exonendmap)))
 
-    for i in exonhitmap.keys():
+    for i in list(exonhitmap.keys()):
         if exonhitmap[i] == 0:
-            if exoncompletemap[i] <> 0:
+            if exoncompletemap[i] != 0:
                 raise Exception('ERROR: HIT map 0 and COMPLETE map nonzero!')
-            if exonstartmap[i] <> 0:
+            if exonstartmap[i] != 0:
                 raise Exception('ERROR: HIT map 0 and START map nonzero!')
-            if exonendmap[i] <> 0:
+            if exonendmap[i] != 0:
                 raise Exception('ERROR: HIT map 0 and END map nonzero!')
 
     # A list of indices of exons for which a hit map is nonzero
-    hitlist = [i for i in exonhitmap.keys() if exonhitmap[i] > 0]
+    hitlist = [i for i in list(exonhitmap.keys()) if exonhitmap[i] > 0]
 
     if len(hitlist) == 0:
         return False, False
@@ -170,7 +170,7 @@ def load_and_process_reference(ref_file, paramdict, report):
         report.chromlengths = {chromname : report.reflength}
         chromname2seq[chromname] = 0
     else:
-        for i in xrange(len(headers)):
+        for i in range(len(headers)):
             header = headers[i]
             chromname = getChromName(header, processChromNames)
             if chromname in report.chromlengths:
@@ -212,7 +212,7 @@ def load_and_process_SAM(sam_file, paramdict, report, BBMapFormat = False):
     # Stil have to decide what to do with query names, currently removing '_part'
     if BBMapFormat:
         new_sam_hash = {}
-        for (qname, sam_lines) in sam_hash.iteritems():
+        for (qname, sam_lines) in sam_hash.items():
             pos = qname.find('_part')
             if pos > -1:
                 origQname = qname[:pos]
@@ -244,9 +244,9 @@ def load_and_process_SAM(sam_file, paramdict, report, BBMapFormat = False):
     cnt = 0
     pattern = '(\d+)(.)'
     # for samline_list in sam_hash.itervalues():
-    for (samline_key, samline_list) in sam_hash.iteritems():
+    for (samline_key, samline_list) in sam_hash.items():
         cnt += 1
-        if samline_list[0].cigar <> '*' and samline_list[0].cigar <> '':            # if the first alignment doesn't have a regular cigar string, skip
+        if samline_list[0].cigar != '*' and samline_list[0].cigar != '':            # if the first alignment doesn't have a regular cigar string, skip
 
             if BBMapFormat:
                 # All deletes that are 10 or more bases are replaced with Ns of the same length
@@ -408,8 +408,8 @@ def load_and_process_annotations(annotations_file, paramdict, report):
     for annotation in annotations:
         # Initializing a list of counters for a gene
         # Each gene has one global counted (index 0), and one counter for each exon
-        expressed_genes[annotation.genename] = [0 for i in xrange(len(annotation.items) + 1)]
-        gene_coverage[annotation.genename] = [0 for i in xrange(len(annotation.items) + 1)]
+        expressed_genes[annotation.genename] = [0 for i in range(len(annotation.items) + 1)]
+        gene_coverage[annotation.genename] = [0 for i in range(len(annotation.items) + 1)]
 
         if len(annotation.items) > 1:
             report.num_multiexon_genes += 1
@@ -485,8 +485,8 @@ def eval_mapping_part(proc_id, samlines, annotations, paramdict, chromname2seq, 
     gene_coverage = {}
     new_annotations = []
     for annotation in annotations:
-        expressed_genes[annotation.genename] = [0 for i in xrange(len(annotation.items) + 1)]
-        gene_coverage[annotation.genename] = [0 for i in xrange(len(annotation.items) + 1)]
+        expressed_genes[annotation.genename] = [0 for i in range(len(annotation.items) + 1)]
+        gene_coverage[annotation.genename] = [0 for i in range(len(annotation.items) + 1)]
 
     report = EvalReport(ReportType.TEMP_REPORT)
 
@@ -667,7 +667,7 @@ def eval_mapping_part(proc_id, samlines, annotations, paramdict, chromname2seq, 
 
             # Updating gene expression
             # Since all initial values for expression and coverage are zero, this could all probably default to case one
-            if annotation.genename in expressed_genes.keys():
+            if annotation.genename in list(expressed_genes.keys()):
                 expressed_genes[annotation.genename][0] += 1
                 gene_coverage[annotation.genename][0] += annotation.basesInsideGene(startpos, endpos)
             else:
@@ -686,10 +686,10 @@ def eval_mapping_part(proc_id, samlines, annotations, paramdict, chromname2seq, 
             # Start map collects which exons are correctly started by an alignment (have the same starting position)
             # End map collects which exons are correctly ended by an alignment (have the same ending position)
             # NOTE: test this to see if it slows the program too much
-            exonhitmap = {(i+1):0 for i in xrange(len(annotation.items))}
-            exoncompletemap = {(i+1):0 for i in xrange(len(annotation.items))}
-            exonstartmap = {(i+1):0 for i in xrange(len(annotation.items))}
-            exonendmap = {(i+1):0 for i in xrange(len(annotation.items))}
+            exonhitmap = {(i+1):0 for i in range(len(annotation.items))}
+            exoncompletemap = {(i+1):0 for i in range(len(annotation.items))}
+            exonstartmap = {(i+1):0 for i in range(len(annotation.items))}
+            exonendmap = {(i+1):0 for i in range(len(annotation.items))}
             num_misses = 0      # The number of partial alignments that do not overlap any exons
                                 # Partial alignments that are smaller than allowed_inaccuracy, are not counted
             for samline in samline_list:
@@ -736,7 +736,7 @@ def eval_mapping_part(proc_id, samlines, annotations, paramdict, chromname2seq, 
 
             # Analyzing exon maps to extract some statistics
             num_exons = len(annotation.items)
-            num_covered_exons = len([x for x in exonhitmap.values() if x > 0])      # Exons are considered covered if they are in the hit map
+            num_covered_exons = len([x for x in list(exonhitmap.values()) if x > 0])      # Exons are considered covered if they are in the hit map
                                                                                     # This means that they only have to be overlapping with an alignment!
             if num_covered_exons > 0:
                 report.num_cover_some_exons += 1    # For alignments covering multiple genes, this will be calculated more than once
@@ -744,12 +744,12 @@ def eval_mapping_part(proc_id, samlines, annotations, paramdict, chromname2seq, 
             if num_covered_exons == num_exons:
                 report.num_cover_all_exons += 1
 
-            num_equal_exons = len([x for x in exoncompletemap.values() if x > 0])
+            num_equal_exons = len([x for x in list(exoncompletemap.values()) if x > 0])
             report.num_equal_exons += num_equal_exons
             report.num_partial_exons += num_covered_exons - num_equal_exons
 
             # Exons covered by more than one part of a split alignment
-            multicover_exons = len([x for x in exonhitmap.values() if x > 1])
+            multicover_exons = len([x for x in list(exonhitmap.values()) if x > 1])
             report.num_multicover_exons += multicover_exons
 
             # Not sure what to do with this
@@ -757,8 +757,8 @@ def eval_mapping_part(proc_id, samlines, annotations, paramdict, chromname2seq, 
             report.num_overcover_alignments = 0
 
             # Exon start and end position
-            num_good_starts = len([x for x in exonstartmap.values() if x > 0])
-            num_good_ends = len([x for x in exonendmap.values() if x > 0])
+            num_good_starts = len([x for x in list(exonstartmap.values()) if x > 0])
+            num_good_ends = len([x for x in list(exonendmap.values()) if x > 0])
             report.num_good_starts += num_good_starts
             report.num_good_ends += num_good_ends
 
@@ -1094,7 +1094,7 @@ def eval_mapping_annotations(ref_file, sam_file, annotations_file, paramdict):
                             pass
                         else:
                             sys.stderr.write('\nERROR: Invalid CIGAR string operation (%s)' % op[1])
-                except Exception, e:
+                except Exception as e:
                     # import pdb
                     # pdb.set_trace()
                     sys.stderr.write('ERROR: querry/ref/pos/message = %s/%s/%d/%s \n' % (samline.qname, samline.rname, samline.pos, e.message))
@@ -1144,7 +1144,7 @@ def eval_mapping_annotations(ref_file, sam_file, annotations_file, paramdict):
 
     # If separating for the strand
     if check_strand:
-        for chromname in chromname2seq.keys():      # Initializing
+        for chromname in list(chromname2seq.keys()):      # Initializing
             partlist.append(chromname + '+')
             partlist.append(chromname + '-')
             part_samlines[chromname + '+'] = []
@@ -1181,7 +1181,7 @@ def eval_mapping_annotations(ref_file, sam_file, annotations_file, paramdict):
 
     # Not separating according to the strand
     else:
-        for chromname in chromname2seq.keys():      # Initializing
+        for chromname in list(chromname2seq.keys()):      # Initializing
             partlist.append(chromname)
             part_samlines[chromname] = []
             part_annotations[chromname] = []
@@ -1232,7 +1232,7 @@ def eval_mapping_annotations(ref_file, sam_file, annotations_file, paramdict):
 
     expressed_genes = {}
     gene_coverage = {}
-    for i in xrange(len(jobs)):
+    for i in range(len(jobs)):
         [t_report, t_expressed_genes, t_gene_coverage] = out_q.get()
         expressed_genes.update(t_expressed_genes)
         gene_coverage.update(t_gene_coverage)
@@ -1548,7 +1548,7 @@ def eval_mapping_annotations(ref_file, sam_file, annotations_file, paramdict):
     # How many genes were covered by alignments
     report.num_genes_covered = 0
     report.num_exons_covered = 0
-    for genecnt in expressed_genes.itervalues():
+    for genecnt in expressed_genes.values():
         if genecnt[0] > 0:
             report.num_genes_covered += 1
         for cnt in genecnt[1:]:
@@ -2082,4 +2082,4 @@ if __name__ == '__main__':
         eval_maplength(sam_file, paramdict)
 
     else:
-        print 'Invalid mode!'
+        print('Invalid mode!')

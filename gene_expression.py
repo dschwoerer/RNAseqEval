@@ -57,4 +57,4 @@ if __name__ == '__main__':
         prepare_human_annotations(annotations_file)
 
     else:
-        print 'Invalid mode: %s!' % mode
+        print('Invalid mode: %s!' % mode)

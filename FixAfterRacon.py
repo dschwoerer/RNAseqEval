@@ -23,11 +23,11 @@ def fixAfterRacon(consensus_file, original_file, output_file = sys.stdout):
     clen = len(cheaders)
     olen = len(oheaders)
 
-    for oidx in xrange(olen):
+    for oidx in range(olen):
         csame = 0
         oheader = oheaders[oidx]
         oseq = oseqs[oidx]
-        for cidx in xrange(clen):
+        for cidx in range(clen):
             cheader = cheaders[cidx]
             cseq = cseqs[cidx]
             if oheader == cheader[10:]:

@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 import sys, os
-import paramsparser
+from . import paramsparser
 
 from datetime import datetime
 
@@ -9,10 +9,10 @@ from datetime import datetime
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(SCRIPT_PATH, 'samscripts/src'))
 import utility_sam
-import Annotation_formats
-import RNAseqEval
-from report import EvalReport, ReportType
-from RNAseq_benchmark import benchmark_params
+from . import Annotation_formats
+from . import RNAseqEval
+from .report import EvalReport, ReportType
+from .RNAseq_benchmark import benchmark_params
 
 from fastqparser import read_fastq
 
@@ -255,7 +255,7 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
 
         # BBMap separates a query into smaller parts he can manage
         # Extends query with '_part_#', which has to be ignored
-        if pos2 <> -1:
+        if pos2 != -1:
             simQName = simQName[:pos2]
 
         simRefNumber = int(simQName[1:pos])
@@ -365,8 +365,8 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
         numparts = len(expected_partial_alignments)
         # For each part of expected partial alignments, these maps will count
         # how many real partial alignments overlap or equal it
-        parthitmap = {(i+1):0 for i in xrange(numparts)}
-        parteqmap = {(i+1):0 for i in xrange(numparts)}
+        parthitmap = {(i+1):0 for i in range(numparts)}
+        parteqmap = {(i+1):0 for i in range(numparts)}
 
         isSplitRead = False
         if len(expected_partial_alignments) > 1:
@@ -411,7 +411,7 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
                 k += 1
 
                 # Comparing a samline to all expected partial alignments
-                for i in xrange(len(expected_partial_alignments)):
+                for i in range(len(expected_partial_alignments)):
                     expected_alignement = expected_partial_alignments[i]
                     maf_startpos = expected_alignement[0]
                     maf_endpos = expected_alignement[1]
@@ -442,7 +442,7 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
             # Testing the evaluation process
             # import pdb
             # pdb.set_trace()
-            if len(samline_list) <> len(expected_partial_alignments):
+            if len(samline_list) != len(expected_partial_alignments):
                 good_alignment = False
 
             if good_alignment:
@@ -475,7 +475,7 @@ def processData(datafolder, resultfile, annotationfile, paramdict):
             allHits = True
             oneEq = False
             multiHit = False
-            for i in xrange(numparts):
+            for i in range(numparts):
                 if parthitmap[i+1] > 0:
                     oneHit = True
                 if parthitmap[i+1] == 0:
@@ -746,4 +746,4 @@ if __name__ == '__main__':
         processData(datafolder, resultfile, annotationfile, paramdict)
 
     else:
-        print 'Invalid mode!'
+        print('Invalid mode!')

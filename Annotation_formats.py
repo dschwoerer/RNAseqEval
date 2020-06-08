@@ -196,7 +196,7 @@ class GeneDescription:
         if len(items1) != len(items2):
             return False
 
-        for i in xrange(len(items1)):
+        for i in range(len(items1)):
             item1 = items1[i]
             item2 = items2[i]
             if item1.start != item2.start or item1.end != item2.end:
@@ -339,9 +339,9 @@ def Load_Annotation_From_File(filename, check_duplicates = False):
     if check_duplicates:
         num_duplicates = 0
         # duplicates = []
-        for i in xrange(len(annotations)):
+        for i in range(len(annotations)):
             genename1 = annotations[i].genename
-            for j in xrange(i+1, len(annotations)):
+            for j in range(i+1, len(annotations)):
                 genename2 = annotations[j].genename
                 if genename1 == genename2:
                     import pdb
@@ -414,7 +414,7 @@ def Load_GFF_From_File(filename):
         else:
             att_line = elements[8]
             att_list = att_line.split(';')          # Separating attribute definitions
-            for i in xrange(len(att_list)):
+            for i in range(len(att_list)):
                 elements = att_list[i].split()      # Separating key and value for each attribute
                 if len(elements) == 2:
                     gffline.attribute[elements[0]] = elements[1]

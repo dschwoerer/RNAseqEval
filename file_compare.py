@@ -70,7 +70,7 @@ def compare2files(filename1, filename2):
 
     sys.stderr.write('\nWritting names for both files\n')
     with open('file12_both.names', 'w+') as file_both:
-        for line in dictboth.iterkeys():
+        for line in dictboth.keys():
             file_both.write(line)
         file_both.close()
 

@@ -28,7 +28,7 @@ def extractFromSAM(sam_fname, qnames_fname):
 
     sys.stderr.write('\nExtracting ...')
     # Keys in the dictionary (hash) correspond to qnames
-    for (samline_key, samline_list) in sam_hash.iteritems():
+    for (samline_key, samline_list) in sam_hash.items():
         if samline_key in qnames_dict:
             for samline in samline_list:
                 sys.stdout.write(samline.original_line + '\n')
@@ -58,7 +58,7 @@ def extractFromFAST(fast_fname, qnames_fname):
     [headers, seqs, quals] = read_fastq(fast_fname)
 
     sys.stderr.write('\nExtracting ...')
-    for i in xrange(len(headers)):
+    for i in range(len(headers)):
         header = headers[i]
         seq = seq[i]
         qual = quals[i]

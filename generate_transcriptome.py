@@ -26,7 +26,7 @@ class Exon:
                 break
 
         if self.trans_id is None:
-            print "No transcript id!\n" + self
+            print("No transcript id!\n" + self)
 
     def __str__(self):
         return "Exon: \n" + " ".join([self.seqname, self.source, self.feature, \
@@ -176,9 +176,9 @@ gff.close()
 
 tid_regions = makeRegions(tid_exons)
 #
-print "transcripts: " + str(len(transToSeq))
-print "exons: " + str(count(tid_exons))
-print "regions: " + str(count(tid_regions))
+print("transcripts: " + str(len(transToSeq)))
+print("exons: " + str(count(tid_exons)))
+print("regions: " + str(count(tid_regions)))
 #
 in_fasta = open(sys.argv[2])
 out_fasta = open(sys.argv[3],'w')

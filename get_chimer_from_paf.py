@@ -51,7 +51,7 @@ def analyze_chimeric_PAF(filename):
     paffile.close()
 
     # KK: printing out only the names of chimeric reads
-    for name in chimeric_reads.iterkeys():
+    for name in chimeric_reads.keys():
         sys.stdout.write('%s\n' % name)
 
     sys.stderr.write('\n Count occurences: %d' % count)
@@ -73,7 +73,7 @@ def analyze_chimeric_SAM(filename):
     qnames_with_multiple_alignments = {}
     [sam_hash, sam_hash_num_lines, sam_hash_num_unique_lines] = utility_sam.HashSAMWithFilter(filename, qnames_with_multiple_alignments)
 
-    for (samline_key, samline_list) in sam_hash.iteritems():
+    for (samline_key, samline_list) in sam_hash.items():
         count_all += 1
         for samline in samline_list:
             # import pdb
@@ -85,7 +85,7 @@ def analyze_chimeric_SAM(filename):
                 count += 1
 
     # KK: printing out only the names of chimeric reads
-    for name in chimeric_reads.iterkeys():
+    for name in chimeric_reads.keys():
         sys.stdout.write('%s\n' % name)
 
     sys.stderr.write('\n Count occurences: %d' % count)
@@ -208,4 +208,4 @@ if __name__ == '__main__':
         split(readsfile, namesfile)
 
     else:
-        print 'Invalid mode!'
+        print('Invalid mode!')

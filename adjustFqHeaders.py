@@ -6,7 +6,7 @@ import sys, os
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(SCRIPT_PATH, 'samscripts/src'))
 import utility_sam
-import Annotation_formats
+from . import Annotation_formats
 
 from fastqparser import read_fastq
 
@@ -21,7 +21,7 @@ def adjustFqHeaders(fastqfile, findStr, replaceStr):
     replaced = 0
     notreplaced = 0
 
-    for i in xrange(totalSeqs):
+    for i in range(totalSeqs):
         header = headers[i]
         seq = seqs[i]               # Not really needed
         qual = quals[i]             # Not really needed
@@ -34,7 +34,7 @@ def adjustFqHeaders(fastqfile, findStr, replaceStr):
             notreplaced += 1
 
     with open(fastqfile, 'w') as ffile:
-        for i in xrange(totalSeqs):
+        for i in range(totalSeqs):
             header = headers[i]
             seq = seqs[i]
             qual = quals[i]
@@ -74,5 +74,5 @@ if __name__ == '__main__':
     replaced, notreplaced = adjustFqHeaders(fastqfile, findStr, replaceStr)
 
     print('\nStatistics:\n')
-    print('Adjusted headers: %d\n' % replaced)
-    print('Non adjusted headers: %d\n' % notreplaced)
+    print(('Adjusted headers: %d\n' % replaced))
+    print(('Non adjusted headers: %d\n' % notreplaced))

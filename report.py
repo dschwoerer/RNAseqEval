@@ -341,7 +341,7 @@ class EvalReport:
             # Counting the number of expressed genes
             # This has already been written in the report, but this way the value can be double checked
             exp_gn_cnt = 0
-            for expression in self.expressed_genes.values():
+            for expression in list(self.expressed_genes.values()):
                 if expression[0] > 0:
                     exp_gn_cnt += 1
 
@@ -357,7 +357,7 @@ class EvalReport:
                     raise Exception('ERROR: Gene expression and gene coverage dictionaries do not match in length! (%d <> %d)' \
                                   % (len(self.expressed_genes), len(self.gene_coverage)))
 
-                for genename in self.expressed_genes.keys():
+                for genename in list(self.expressed_genes.keys()):
                     numexons = len(self.expressed_genes[genename]) - 1
                     genehits = self.expressed_genes[genename][0]
                     gene_cov_bs = self.gene_coverage[genename][0]
@@ -420,7 +420,7 @@ class EvalReport:
             Alternate splicing genes:
             genename: [transcript name (number of exons)]...
                 """ % len(self.alternate_splicing)
-                for genename, alternate_splicing_info in self.alternate_splicing.items():
+                for genename, alternate_splicing_info in list(self.alternate_splicing.items()):
                     report += '%s: %s\n' % (genename, alternate_splicing_info)
 
             return report + '\n'
